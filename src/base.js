@@ -1,6 +1,6 @@
 /* global Jitsi */
 
-/** @namespace
+/** @class
   The base object that provides a mechanism for simple inheritance
   based off of Douglas Crockford's [prototypal inheritance][1].
 
@@ -36,13 +36,14 @@ Jitsi.Base = {
     in mixed into the object.
 
     @param {...} extensions The objects to extend `this` with.
-    @returns {JNWS.Base} The new Object, extended with the given properties.
+    @returns {Jitsi.Base} The new Object, extended with the given properties.
    */
   extend: (function () {
     var mix,
         callable = "[object Function]",
         slice = Array.prototype.slice;
 
+    /** @ignore */
     mix = function (mixins) {
       var i = 0, len = mixins.length;
 
@@ -91,5 +92,7 @@ Jitsi.Base = {
 /**
   Alias for `extend`.
   @see {@link Jitsi.Base#extend}
+  @param {...} extensions The objects to extend `this` with.
+  @returns {Jitsi.Base} The new Object, extended with the given properties.
  */
 Jitsi.Base.create = Jitsi.Base.extend;

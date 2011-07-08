@@ -79,7 +79,7 @@ Jitsi.Base = {
           extension, res;
       F.prototype = this;
       extension = new F();
-      res = mix(slice(arguments)).into(extension);
+      res = mix(slice.apply(arguments)).into(extension);
       if (typeof this.init === callable) {
         this.init.apply(res);
       }

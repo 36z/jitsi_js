@@ -41,32 +41,24 @@ Jitsi.Base = {
   extend: (function () {
     var mix,
         callable = "[object Function]",
+        toString = Object.prototype.toString,
         slice = Array.prototype.slice;
 
     /** @ignore */
     mix = function (mixins) {
-      var i = 0, len = mixins.length;
-
       return {
         into: function (target) {
-          var mixin, key, value;
+          var mixin, key;
 
-          if (target == null) {
-            throw new TypeError("Cannot mix into null or undefined values.");
-          }
-
-          for (; i < len; i += 1) {
+          for (var i = 0, len = mixins.length; i < len; i += 1) {
             mixin = mixins[i];
             for (key in mixin) {
-              value = mixin[key];
-              target[key] = value;
+              target[key] = mixin[key];
             }
 
-            // Take care of IE clobbering `toString` and `valueOf`
+            // Take care of IE clobbering `toString`
             if (mixin && mixin.toString !== Object.prototype.toString) {
               target.toString = mixin.toString;
-            } else if (mixin && mixin.valueOf !== Object.prototype.valueOf) {
-              target.valueOf = mixin.valueOf;
             }
           }
           return target;
@@ -80,7 +72,7 @@ Jitsi.Base = {
       F.prototype = this;
       extension = new F();
       res = mix(slice.apply(arguments)).into(extension);
-      if (typeof this.init === callable) {
+      if (toString.call(this.init) === callable) {
         this.init.apply(res);
       }
       return res;

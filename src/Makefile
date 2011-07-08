@@ -1,6 +1,6 @@
 SRC = core.js base.js user_agent.js registration.js call.js
 
-DOCDIR = ../doc
+DOCDIR = ../docs
 
 JSDOCDIR = ../frameworks/jsdoc-toolkit
 TEMPLATE = $(JSDOCDIR)/templates/jitsi

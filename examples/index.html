@@ -1,0 +1,18 @@
+<html>
+<head>
+  <title>Embedding Jitsi in webpages</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <div id="jitsi"/>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+  <script src="../jitsi.js"></script>
+  <script src="engine.js"></script>
+  <script src="app.js"></script>
+  <script>
+     $(document).ready(function () {
+       Jitsi.App.render();
+     });
+  </script>
+</body>
+</html>

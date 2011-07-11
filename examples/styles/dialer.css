@@ -1,0 +1,55 @@
+/** Dialpad input CSS */
+.dialer {
+  font-family: Helvetica, sans-serif;
+  position: absolute;
+  left: 28px;
+  width: 300px;
+}
+
+.dialer-field {
+  position: absolute;
+  border: 1px solid #AAA;
+  left: 0;
+  right: 0;
+  height: 25px;
+}
+
+.dialer-field .dialpad-icon {
+  float: left;
+  cursor: pointer;
+  display: inline-block;
+  padding: 2px;
+  margin: 0;
+}
+
+.dialer-field .dialpad-icon td {
+  display: block;
+  padding: 1px;
+  width: 3px;
+  height: 3px;
+  background-color: #AAA;
+}
+
+.dialer-field input {
+  position: absolute;
+  top: 0;
+  left: 30px;
+  bottom: 0;
+  right: 50px;
+  border: 0;
+  font-size: 13px;
+  outline: none;
+}
+
+.dialer-field button {
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  bottom: 0px;
+  width: 50px;
+  border: 0;
+  border-left: 1px solid #AAA;
+  background: #DDD;
+  padding: 0;
+  margin: 0;
+}

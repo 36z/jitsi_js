@@ -14,11 +14,6 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase({
     assert.isUndefined(tmp.foo);
   },
 
-  testCreateShouldBeAnAliasForExtend: function () {
-    assert.areSame(Jitsi.Base.extend, Jitsi.Base.create,
-                   "create and extend should be the same");
-  },
-
   testInitShouldBeCalledOnExtensionTime: function () {
     var Base = Jitsi.Base.extend({
       init: function () {
@@ -26,7 +21,7 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase({
       }
     });
 
-    var base = Base.create();
+    var base = Base.extend();
     assert.isTrue(!!base.hasBeenCalled,
                   "`init` should be called on extension time");
   }

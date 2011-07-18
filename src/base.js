@@ -32,59 +32,85 @@
 Jitsi.Base = {
 
   /**
-    Creates a new object from `this` with the objects passed
-    in mixed into the object.
-
-    @param {...} extensions The objects to extend `this` with.
-    @returns {Jitsi.Base} The new Object, extended with the given properties.
+   * Iterates over all arguments, adding their own properties to the
+   * receiver.
+   *
+   * @example
+   *   obj.mixin({
+   *     hello: "world"
+   *   });
+   *   obj.hello;
+   *   // -> "world"
+   *
+   * @returns {Jitsi.Base} the receiver
+   *
+   * @see Jitsi.Base.extend
    */
-  extend: (function () {
-    var mix,
-        callable = "[object Function]",
-        toString = Object.prototype.toString,
-        slice = Array.prototype.slice;
+  mixin: function () {
+    var len = arguments.length,
+      /** @ignore */
+      empty = function () {},
+      obj, val, fn, cur;
 
-    /** @ignore */
-    mix = function (mixins) {
-      return {
-        into: function (target) {
-          var mixin, key;
+    for (var i = 0; i < len; i++) {
+      obj = arguments[i];
+      for (var prop in obj) {
+        if (obj.hasOwnProperty(prop)) {
+          val = obj[prop];
+          cur = this[prop];
 
-          for (var i = 0, len = mixins.length; i < len; i += 1) {
-            mixin = mixins[i];
-            for (key in mixin) {
-              target[key] = mixin[key];
-            }
-
-            // Take care of IE clobbering `toString`
-            if (mixin && mixin.toString !== Object.prototype.toString) {
-              target.toString = mixin.toString;
-            }
+          if (Jitsi.isFunction(val) && val._xcInferior && cur) {
+            continue;
           }
-          return target;
+
+          if (Jitsi.isFunction(val) && val._xcAround) {
+            fn = (cur && Jitsi.isFunction(cur)) ? cur : empty;
+            val = val.curry(fn);
+          }
+
+
+          this[prop] = val;
         }
-      };
-    };
-
-    return function () {
-      var F = function () {},
-          extension, res;
-      F.prototype = this;
-      extension = new F();
-      res = mix(slice.apply(arguments)).into(extension);
-      if (toString.call(this.init) === callable) {
-        this.init.apply(res);
       }
-      return res;
-    };
-  }())
-  
-};
 
-/**
-  Alias for `extend`.
-  @see {@link Jitsi.Base#extend}
-  @param {...} extensions The objects to extend `this` with.
-  @returns {Jitsi.Base} The new Object, extended with the given properties.
- */
-Jitsi.Base.create = Jitsi.Base.extend;
+      // Prevents IE from clobbering toString
+      if (obj && obj.toString !== Object.prototype.toString) {
+        this.toString = obj.toString;
+      }
+    }
+    return this;
+  },
+
+  /**
+   * Creates a new object which extends the current object.  Any
+   * arguments are mixed in to the new object as if {@link Jitsi.Base.mixin}
+   * was called on the new object with remaining args.
+   *
+   * @example
+   *   var obj = Jitsi.Base.extend({
+   *     hello: "world"
+   *   });
+   *   obj.hello;
+   *   // -> "world"
+   *
+   *   Jitsi.Base.hello;
+   *   // -> undefined
+   * @returns {Jitsi.Base} the new object
+   *
+   * @see Jitsi.Base.mixin
+   */
+  extend: function () {
+    var F = function () {},
+        rc;
+    F.prototype = this;
+    rc = new F();
+    rc.mixin.apply(rc, arguments);
+
+    if (rc.init && rc.init.constructor === Function) {
+      rc.init.call(rc);
+    }
+
+    return rc;
+  }
+
+};

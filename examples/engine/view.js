@@ -14,6 +14,8 @@ Jitsi.View = Jitsi.Base.extend(
    */
   __guid__: 0,
 
+  create: Jitsi.Base.extend, // alias create
+
   /**
     Whether the view is visible or not.
     @type Boolean

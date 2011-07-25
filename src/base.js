@@ -68,7 +68,6 @@ Jitsi.Base = {
             val = val.curry(fn);
           }
 
-
           this[prop] = val;
         }
       }

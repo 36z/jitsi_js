@@ -23,7 +23,7 @@ Jitsi.Function = Jitsi.Base.mixin.call({}, /** @lends Function.prototype */ {
    *       return 'foo' + junk;
    *     }
    *   });
-   *   var fooBar = foo.extend({
+    *   var fooBar = foo.extend({
    *     bar: function (foosBar, junk) {
    *       return 'foo' + foosBar.call(this, [junk]);
    *     }.around();
@@ -59,7 +59,9 @@ Jitsi.Function = Jitsi.Base.mixin.call({}, /** @lends Function.prototype */ {
     target._jtInferior = true;
     return target;
   }
+
 });
+
 
 // must mix this in separately because we want to call inferior here
 Jitsi.Base.mixin.call(Function.prototype, /** @lends Function.prototype */ {
@@ -178,3 +180,4 @@ Jitsi.Base.mixin.call(Array.prototype, /** @lends Array.prototype */ {
     return -1;
   })
 });
+

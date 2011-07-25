@@ -30,7 +30,9 @@ Jitsi = {
    * @returns {void}
    */
   debug: function () {
-    return window.console && window.console.debug && window.console.debug.apply && window.console.debug.apply(window.console, arguments);
+    return window.console && window.console.debug &&
+      window.console.debug.apply &&
+      window.console.debug.apply(window.console, arguments);
   },
 
   /**
@@ -38,7 +40,9 @@ Jitsi = {
    * @returns {void}
    */
   log: function () {
-    return window.console && window.console.log && window.console.warn.apply && window.console.log.apply(window.console, arguments);
+    return window.console && window.console.log &&
+      window.console.warn.apply &&
+      window.console.log.apply(window.console, arguments);
   },
 
   /**
@@ -46,7 +50,9 @@ Jitsi = {
    * @returns {void}
    */
   warn: function () {
-    return window.console && window.console.warn && window.console.warn.apply && window.console.warn.apply(window.console, arguments);
+    return window.console &&
+      window.console.warn && window.console.warn.apply &&
+      window.console.warn.apply(window.console, arguments);
   },
 
   /**
@@ -54,7 +60,9 @@ Jitsi = {
    * @returns {void}
    */
   error: function () {
-    return window.console && window.console.error && window.console.error.apply && window.console.error.apply(window.console, arguments);
+    return window.console && window.console.error &&
+      window.console.error.apply &&
+      window.console.error.apply(window.console, arguments);
   },
 
   /**

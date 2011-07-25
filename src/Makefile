@@ -1,4 +1,4 @@
-SRC = core.js base.js util.js user_agent.js registration.js call.js
+SRC = core.js base.js util.js connection.js user_agent.js registration.js call.js applet.js
 
 DOCDIR = ../docs
 

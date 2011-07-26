@@ -1,6 +1,6 @@
 YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
 {
-  name: 'Jitsi Applet Adapter Tests',
+  name: '***** Jitsi Applet Adapter Tests *****',
 
   testCreateAdapter: function() {
     var Assert = YAHOO.util.Assert;

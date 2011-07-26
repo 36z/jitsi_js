@@ -2,7 +2,8 @@
  * Example:
  * --------
  *
- * var Jitsi.UA = Jitsi.Connection.extend({appletAdapter: adapter});
+ * var applet = Jitsi.Applet.extend();
+ * var Jitsi.UA = Jitsi.Connection.extend({appletAdapter: applet});
  *
  * Jitsi.UA.Register.registerHandler('onRegistered', function(regEvent){});
  * Jitsi.UA.Register.registerHandler('onRegistering',function(regEvent){});
@@ -29,7 +30,7 @@ Jitsi.Applet = Jitsi.Base.extend(
     function($super) {
       this._handlers = {};
       if (Jitsi.isFunction($super)) {
-        $super.apply(this, Array.from(arguments).slice(-1));        
+        $super.apply(this, Array.from(arguments).slice(-1));
       }
       if (this.appletID && this.globalEventReceiveFunctionName) {
         window[this.globalEventReceiveFunctionName] = this.receiveEvent;
@@ -41,8 +42,9 @@ Jitsi.Applet = Jitsi.Base.extend(
   /**
    * applet => javascript
    *
-   * Fire the event in _handlers.
-   * The target of the event exists in Jitsi.Connection
+   * Fire the callback function
+   * in _handlers. The target of the
+   * event  exists in Jitsi.Connection
    */
   receiveEvent: function(rawEvent) {
     throw new Error("Must Implement");
@@ -114,71 +116,3 @@ Jitsi.Applet = Jitsi.Base.extend(
 
   }
 });
-
-
-/**
- *
- * Example:
- *
- * var adapter = Jitsi.Applet.extend({
- *
- *    // applet -> javascript
- *    receiveEvent: function(rawEvent) {
- *      // call the registered handler
- *    },
- *
- *    // javascript -> applet
- *    sendEvent: function(rawEvent) {
- *       //applet.api();
- *    },
- *
- *    registerHandler: function(event, handler) {},
- *
- *    unRegisterHandler: function(event) {}
- *
- * });
- *
- *
- * var Jitsi.UA = Jitsi.Connection.extend({appletAdapter: adapter});
- *
- * Jitsi.UA.Register.registerHandler('onRegistered', function(regEvent){});
- * Jitsi.UA.Register.registerHandler('onRegistering',function(regEvent){});
- *
- * Jitsi.UA.Call.registerHandler('onCallCreated', function(callEvent){});
- * Jitsi.UA.Call.create('sip:1732222');
- *
- */
-
-/**
-Jitsi.AppletAdapter = Jitsi.Applet.extend({
-    _handlers: {},
-
-   init: Jitsi.Function.around(
-     function($super) {
-       this._handlers = {};
-       if (Jitsi.isFunction($super)) {
-         $super.apply(this, Array.from(arguments).slice(1));
-       }
-     }
-   ),
-
-   receiveEvent: function(rawEvent) {
-     throw new Error("Must Implement");
-   },
-
-   sendEvent: function(rawEvent) {
-     throw new Error("Must Implement");
-   },
-
-   registerHandler: function(event, handler) {
-     this.unregisterHandler(event);
-     this._handlers[event] = handler;
-   },
-
-   unregisterHandler: function(event) {
-     if (this._handlers[event]) {
-       delete this._handlers[event];
-     }
-   }
-});
-**/

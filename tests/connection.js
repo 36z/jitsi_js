@@ -1,15 +1,15 @@
 YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
 {
-  name: '***** Jitsi Connection Tests *****',
+  name: 'Jitsi Connection Tests',
 
-  test_Create_Connection: function() {
+  testCreateConnection: function() {
     var Assert = YAHOO.util.Assert;
     var applet  = Jitsi.Applet.extend();
     var connection = Jitsi.Connection.extend({appletAdapter: applet});
     Assert.isNotUndefined(connection);
   },
 
-  test_Verify_Raw_Event_Handler: function () {
+  testVerifyRawEventHandler: function () {
     var Assert = YAHOO.util.Assert;
     var applet = Jitsi.Applet.extend();
     var connection = Jitsi.Connection.extend({appletAdapter: applet});
@@ -19,7 +19,7 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
     Assert.isUndefined(applet._handlers['unkownEvent']);
   },
 
-  test_Unknown_Raw_Event_Handler: function() {
+  testUnknownRawEventHandler: function() {
     var Assert = YAHOO.util.Assert;
     var applet = Jitsi.Applet.extend();
     var connection = Jitsi.Connection.extend({appletAdapter: applet});

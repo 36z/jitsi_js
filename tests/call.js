@@ -1,15 +1,15 @@
 YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
 {
-  name: '***** Jitsi Service Call Tests *****',
+  name: 'Jitsi Service Call Tests',
 
-  test_Create_Call_Service: function() {
+  testCreateCallService: function() {
     var Assert = YAHOO.util.Assert;
     var applet = Jitsi.Applet.extend();
     var connection = Jitsi.Connection.extend({appletAdapter: applet});
     Assert.isNotUndefined(connection.Call);
   },
 
-  test_Registered_Call_Event_Handler: function() {
+  testRegisteredCallEventHandler: function() {
     var Assert = YAHOO.util.Assert;
     var applet = Jitsi.Applet.extend();
     var connection = Jitsi.Connection.extend({appletAdapter: applet});
@@ -17,7 +17,7 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
     Assert.isFunction(service.connection._registeredEventHandlers['call'][0]);
   },
 
-  test_Create: function() {
+  testCreate: function() {
     var Assert = YAHOO.util.Assert;
     var applet = Jitsi.Applet.extend();
     var connection = Jitsi.Connection.extend({appletAdapter: applet});
@@ -25,7 +25,7 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
     Assert.isFunction(service.create);
   },
 
-  test_Hangup: function() {
+  testHangup: function() {
     var Assert = YAHOO.util.Assert;
     var applet = Jitsi.Applet.extend();
     var connection = Jitsi.Connection.extend({appletAdapter: applet});
@@ -33,7 +33,7 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
     Assert.isFunction(service.hangup);
   },
 
-  test_Hold: function() {
+  testHold: function() {
     var Assert = YAHOO.util.Assert;
     var applet = Jitsi.Applet.extend();
     var connection = Jitsi.Connection.extend({appletAdapter: applet});
@@ -41,7 +41,7 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
     Assert.isFunction(service.hold);
   },
 
-  test_SendTone: function() {
+  testSendTone: function() {
     var Assert = YAHOO.util.Assert;
     var applet = Jitsi.Applet.extend();
     var connection = Jitsi.Connection.extend({appletAdapter: applet});
@@ -49,7 +49,7 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
     Assert.isFunction(service.sendTone);
   },
 
-  test_Transfer: function() {
+  testTransfer: function() {
     var Assert = YAHOO.util.Assert;
     var applet = Jitsi.Applet.extend();
     var connection = Jitsi.Connection.extend({appletAdapter: applet});

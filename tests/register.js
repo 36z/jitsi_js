@@ -1,15 +1,15 @@
 YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
 {
-  name: '***** Jitsi Service Register Tests *****',
+  name: 'Jitsi Service Register Tests',
 
-  test_Create_Register_Service: function() {
+  testCreateRegisterService: function() {
     var Assert = YAHOO.util.Assert;
     var applet = Jitsi.Applet.extend();
     var connection = Jitsi.Connection.extend({appletAdapter: applet});
     Assert.isNotUndefined(connection.Register);
   },
 
-  test_Registered_Register_Event_Handler: function() {
+  testRegisteredRegisterEventHandler: function() {
     var Assert = YAHOO.util.Assert;
     var applet = Jitsi.Applet.extend();
     var connection = Jitsi.Connection.extend({appletAdapter: applet});
@@ -17,7 +17,7 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
     Assert.isFunction(service.connection._registeredEventHandlers['registration'][0]);
   },
 
-  test_Register: function() {
+  testRegister: function() {
     var Assert = YAHOO.util.Assert;
     var applet = Jitsi.Applet.extend();
     var connection = Jitsi.Connection.extend({appletAdapter: applet});
@@ -25,7 +25,7 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
     Assert.isFunction(service.register);
   },
 
-  test_Unregister: function() {
+  testUnregister: function() {
     var Assert = YAHOO.util.Assert;
     var applet = Jitsi.Applet.extend();
     var connection = Jitsi.Connection.extend({appletAdapter: applet});

@@ -1,23 +1,35 @@
 /**
+ * Example:
+ * --------
+ *
+ * var Jitsi.UA = Jitsi.Connection.extend({appletAdapter: adapter});
+ *
+ * Jitsi.UA.Register.registerHandler('onRegistered', function(regEvent){});
+ * Jitsi.UA.Register.registerHandler('onRegistering',function(regEvent){});
+ *
+ * Jitsi.UA.Call.registerHandler('onCallCreated', function(callEvent){});
+ * Jitsi.UA.Call.create('sip:1732222');
+ *
+ *
  * Applet <=> DOM bridge
  */
-Jitsi.Applet = Jitsi.Base.extend({
 
-  /* the id of the applet DOM element */
+Jitsi.Applet = Jitsi.Base.extend(
+{
+  /**
+   *  the id of the applet DOM element
+   */
   appletID: null,
 
   globalEventReceiveFunctionName: 'receiveJitsiEvent',
 
-  /* the function called by the applet when the applet has data for javascript */
-  receiveEvent: function(rawEvent) { throw new Error("Not implemented"); },
-
-  /* the function called by javascript to send data to the applet */
-  sendEvent: function(rawEvent) { throw new Error("Not implemented"); },
+  _handlers: {},
 
   init: Jitsi.Function.around(
     function($super) {
+      this._handlers = {};
       if (Jitsi.isFunction($super)) {
-        $super.apply(this, Array.from(arguments).slice(-1));
+        $super.apply(this, Array.from(arguments).slice(-1));        
       }
       if (this.appletID && this.globalEventReceiveFunctionName) {
         window[this.globalEventReceiveFunctionName] = this.receiveEvent;
@@ -25,6 +37,36 @@ Jitsi.Applet = Jitsi.Base.extend({
       }
     }
   ),
+
+  /**
+   * applet => javascript
+   *
+   * Fire the event in _handlers.
+   * The target of the event exists in Jitsi.Connection
+   */
+  receiveEvent: function(rawEvent) {
+    throw new Error("Must Implement");
+  },
+
+  /**
+   * javascript => applet
+   *
+   * Fires the event into the applet
+   */
+  sendEvent: function(rawEvent) {
+    throw new Error("Must Implement");
+  },
+
+  registerHandler: function(event, handler) {
+    this.unregisterHandler(event);
+    this._handlers[event] = handler;
+  },
+
+  unregisterHandler: function(event) {
+    if (this._handlers[event]) {
+      delete this._handlers[event];
+    }
+  },
 
   load: function(template) {
     var id = template.appletID,
@@ -107,6 +149,7 @@ Jitsi.Applet = Jitsi.Base.extend({
  *
  */
 
+/**
 Jitsi.AppletAdapter = Jitsi.Applet.extend({
     _handlers: {},
 
@@ -119,21 +162,10 @@ Jitsi.AppletAdapter = Jitsi.Applet.extend({
      }
    ),
 
-   /**
-    * applet => javascript
-    *
-    * Fire the event in _handlers.
-    * The target of the event exists in Jitsi.Connection
-    */
    receiveEvent: function(rawEvent) {
      throw new Error("Must Implement");
    },
 
-   /**
-    * javascript => applet
-    *
-    * Fires the event into the applet
-    */
    sendEvent: function(rawEvent) {
      throw new Error("Must Implement");
    },
@@ -149,3 +181,4 @@ Jitsi.AppletAdapter = Jitsi.Applet.extend({
      }
    }
 });
+**/

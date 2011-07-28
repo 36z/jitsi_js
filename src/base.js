@@ -113,3 +113,18 @@ Jitsi.Base = {
   }
 
 };
+
+/**
+ * @class
+ * Simple error class of XC.
+ *
+ * @param {String} message The message that the error should throw.
+ * @example
+ *   throw new XC.Error('the error message');
+ **/
+Jitsi.Error = function (message) {
+  this.message = message;
+};
+Jitsi.Error.prototype = new Error();
+Jitsi.Error.prototype.name = 'Jitsi.Error';
+

@@ -1,6 +1,12 @@
-Jitsi.Mixin = {};
+Jitsi.UserAgent = Jitsi.Base.extend(
+{
+  fromObject: function() {
 
-Jitsi.Service = {};
+  }
+
+});
+
+Jitsi.Mixin = {};
 
 Jitsi.Mixin.RegistrationHandler = Jitsi.Base.extend({
 
@@ -60,6 +66,8 @@ Jitsi.Mixin.RegistrationHandler = Jitsi.Base.extend({
 
 });
 
+Jitsi.Service = {};
+
 Jitsi.Service.Api = {
   Calls: {
     CREATE: "CALL_CREATE",
@@ -95,13 +103,8 @@ Jitsi.Service.Register = Jitsi.Base.extend (
   ),
 
   /**
-   *   -- registration callbacks
-   *   onRegistered: function(regEvent) {},
-   *   onUnregistered: function(regEvent) {},
-   *   onRegistering: function(regEvent) {},
-   *
-   *  example:
-   *   this.fireHandler('onRegistered',args)
+   * -- registration callbacks
+   *   onRegisterEvent: userAgent
    */
   _handleRegisterEvents: function(regEvent) {
     var jevt = null;
@@ -115,10 +118,25 @@ Jitsi.Service.Register = Jitsi.Base.extend (
     }
     if (jevt && jevt.type) {
       type = jevt.type;
-      this.fireHandler('onRegisterEvent', jevt);
-      return this;
+      if (type.constructor == String){
+        this.fireHandler('onRegisterEvent', this.userAgent(jevt));
+        return this;
+      }
     }
     throw new Jitsi.Error("Could not parse register event");
+  },
+
+  userAgent: function(data) {
+    if (data) {
+      var type = data.type;
+      var that = this;
+      return {
+        type: type,
+        unregister: function() {
+          that.unregister();
+        }
+      };
+    }
   },
 
   /**
@@ -137,8 +155,9 @@ Jitsi.Service.Register = Jitsi.Base.extend (
 
 });
 
-Jitsi.Service.Call = Jitsi.Base.extend(Jitsi.Mixin.RegistrationHandler,
-{
+Jitsi.Service.Call = Jitsi.Base.extend(
+  Jitsi.Mixin.RegistrationHandler, {
+
   api: Jitsi.Service.Api.Calls,
 
   init: Jitsi.Function.around(
@@ -155,19 +174,35 @@ Jitsi.Service.Call = Jitsi.Base.extend(Jitsi.Mixin.RegistrationHandler,
     }
   ),
 
+  callDialog: function(data) {
+    if (data) {
+      var callId = data["call-id"];
+      var type = data["type"];
+      var call = data.details.call;
+      var peers = data.details.peers;
+      var that = this;
+      return {
+        callID: callId,
+        type: type,
+        call: call,
+        peers: peers,
+
+        hangup: function() {
+          that.hangup();
+        },
+        hold: function() {
+          that.hold();
+        },
+        sendTone: function(key) {
+          that.sendTone(key);
+        }
+      };
+    }
+  },
+
   /**
    * -- call callbacks
-   * onCallCreated: function(callEvent) {},
-   * onCallRequested: function(callEvent) {},
-   * onCallConfirmed: function(callEvent) {},
-   * onCallEnded: function(callEvent) {},
-   *
-   * -- future
-   * onHold: function(callEvent) {},
-   *
-   * example:
-   *   this.fireHandler('onCallCreated',args)
-   *
+   * onCallEvent: callDialog
    */
   _handleCallEvents: function(callEvent) {
     var jevt = null;
@@ -181,8 +216,10 @@ Jitsi.Service.Call = Jitsi.Base.extend(Jitsi.Mixin.RegistrationHandler,
     }
     if (jevt && jevt.type) {
       type = jevt.type;
-      this.fireHandler('onCallEvent', jevt);
-      return this;
+      if (type.constructor == String){
+        this.fireHandler('onCallEvent', this.callDialog(jevt));
+        return this;
+      }
     }
     throw new Jitsi.Error("Could not parse callEvent");
   },
@@ -273,8 +310,10 @@ Jitsi.Service.Loader = Jitsi.Base.extend (
     }
     if (jevt && jevt.type) {
       type = jevt.type;
-      this.fireHandler('onLoadEvent', jevt);
-      return this;
+      if (type.constructor == String){
+        this.fireHandler('onLoadEvent', jevt);
+        return this;
+      }
     }
     throw new Jitsi.Error("Could not parse loadEvent");
   }
@@ -306,10 +345,12 @@ Jitsi.Connection = Jitsi.Base.extend({
          * JS appletAdapter's receiveEvent function
          * that function will pass details of the
          * event into dispatch. dispatch will then
-         * pass the event up to one of the 3 services
+         * pass the event up to one of the services.
+         * The appropriate service will be identified
+         * in the data passed from the applet.
          */
         var that = this;
-        var events = ['call', 'registration', 'loader'],
+        var events = ['packages'];
 
         dispatch = function (rawEvent) {
           that._dispatchEvent(rawEvent);
@@ -385,7 +426,13 @@ Jitsi.Connection = Jitsi.Base.extend({
   },
 
   _findCallbacks: function(rawEvent) {
-    var packageName = rawEvent['package'];
-    return this._eventHandlersForPackage(packageName);
+    if (rawEvent && rawEvent['package']){
+      var packageName = rawEvent['package'];
+      if (packageName.constructor == String){
+        return this._eventHandlersForPackage(packageName);
+      }
+    }
+    throw new Jitsi.Error("The applet returned bad data, " +
+                          "no package property found");
   }
 });

@@ -158,6 +158,28 @@ Jitsi.Base.mixin.call(Array, /** @lends Array */ {
 });
 
 /**
+ * String mixins
+ */
+Jitsi.Base.mixin.call(String.prototype, /** @lends String */ {
+  /**
+   * @function
+   *
+   * @desc Trim leading and trailing whitespace.
+   *
+   * @returns {String} The string with leading and trailing whitespace removed.
+   * @see
+   *   <a href="http://blog.stevenlevithan.com/archives/faster-trim-javascript">
+   *     Faster JavaScript Trim
+   *   </a>
+   * @see <a href="http://jsperf.com/mega-trim-test">Mega Trim Test</a>
+   */
+  trim: JT.Function.inferior(function () {
+    var s = this.match(/\S+(?:\s+\S+)*/);
+    return s ? s[0] : '';
+  })
+});
+
+/**
  * Internet Explorer doesn't implement indexOf,
  * so implement it here.
  */

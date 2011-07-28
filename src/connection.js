@@ -181,7 +181,6 @@ Jitsi.Service.Call = Jitsi.Base.extend(Jitsi.Mixin.RegistrationHandler,
     }
     if (jevt && jevt.type) {
       type = jevt.type;
-      console.log('about to call onCallEvent');
       this.fireHandler('onCallEvent', jevt);
       return this;
     }
@@ -193,7 +192,6 @@ Jitsi.Service.Call = Jitsi.Base.extend(Jitsi.Mixin.RegistrationHandler,
    * @param {String} SIP Uri
    */
   create: function(sip) {
-    console.log('API: ' + this.api);
     return this.connection.sendEvent(this.api.CREATE, [sip]);
   },
 

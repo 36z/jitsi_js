@@ -66,24 +66,39 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
     var Assert = YAHOO.util.Assert;
 
     var handlerFired = false;
-    var handler = function (packet) {
-       handlerFired = true;
+    var handler = function (dialog) {
+      handlerFired = true;
+      dialog.sendTone('*');
     };
 
     this.conn.Call.registerHandler('onCallEvent', handler);
 
     /** test handler fires **/
-    var myJson = {"package":"call",
-                  "type":"outgoing-call",
-                  "details":""};
+    var data =
+      {
+        "package":"call",
+        "type":"outgoing-call",
+        "details":
+        {
+          "call":
+          {
+            "state":"initializing",
+            "id":"13107594568151244482013",
+            "peer-count":"1"
+          },
+          "peers":
+          [{"id":"131075945622724727271"}]
+        }
+      };
 
-    this.applet.fireEvent('call', myJson);
+
+    this.applet.fireEvent('packages', data);
     Assert.isTrue(handlerFired, 'handler did not fire');
 
     this.conn.Call.unregisterHandler('onCallEvent');
 
     handlerFired = false;
-    this.applet.fireEvent('call', myJson);
+    this.applet.fireEvent('packages', data);
     Assert.isFalse(handlerFired, 'handler should not fire');
 
   }

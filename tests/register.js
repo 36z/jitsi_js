@@ -53,8 +53,9 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
     var Assert = YAHOO.util.Assert;
 
     var handlerFired = false;
-    var handler = function (packet) {
-       handlerFired = true;
+    var handler = function (userAgent) {
+      handlerFired = true;
+      Assert.areEqual(userAgent.type,"registered");
     };
 
     this.conn.Register.registerHandler('onRegisterEvent', handler);
@@ -65,13 +66,13 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
       "details":""
     };
 
-    this.applet.fireEvent('registration', myJson);
+    this.applet.fireEvent('packages', myJson);
     Assert.isTrue(handlerFired, 'handler did not fire');
 
     this.conn.Register.unregisterHandler('onRegisterEvent');
 
     handlerFired = false;
-    this.applet.fireEvent('registration', myJson);
+    this.applet.fireEvent('packages', myJson);
     Assert.isFalse(handlerFired, 'handler should not fire');
   }
 

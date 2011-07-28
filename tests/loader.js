@@ -54,13 +54,13 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
       "type":"loaded",
       "details":""};
 
-    this.applet.fireEvent('loader', myJson);
+    this.applet.fireEvent('packages', myJson);
     Assert.isTrue(handlerFired, 'handler did not fire');
 
     this.conn.Loader.unregisterHandler('onLoadEvent');
 
     handlerFired = false;
-    this.applet.fireEvent('loader', myJson);
+    this.applet.fireEvent('packages', myJson);
     Assert.isFalse(handlerFired, 'handler should not fire');
 
   }

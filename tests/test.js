@@ -1,5 +1,3 @@
-Jitsi.Test = {};
-
 // globally scope assert to make testing easier to read.
 var assert = YAHOO.util.Assert;
 

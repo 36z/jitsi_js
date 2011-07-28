@@ -1,60 +1,91 @@
+/**
+ * If we think of the SDK as being layered in this way
+ *
+ * Jitsi.Applet => Jitsi.Connection => Services (Register, Loader, Call)
+ *
+ * The layer we're testing here is Services.
+ * More specifically, we're testing Call
+ *
+ */
 YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
 {
   name: 'Jitsi Service Call Tests',
 
-  testCreateCallService: function() {
-    var Assert = YAHOO.util.Assert;
-    var applet = Jitsi.Applet.extend();
-    var connection = Jitsi.Connection.extend({appletAdapter: applet});
-    Assert.isNotUndefined(connection.Call);
+  setUp: function() {
+    this.applet = Jitsi.Test.MockApplet.extend();
+    this.conn = Jitsi.Connection.extend({appletAdapter: this.applet});
   },
 
-  testRegisteredCallEventHandler: function() {
+  tearDown: function() {
+    delete this.applet;
+    delete this.conn;
+  },
+
+  testCreateCallService: function() {
     var Assert = YAHOO.util.Assert;
-    var applet = Jitsi.Applet.extend();
-    var connection = Jitsi.Connection.extend({appletAdapter: applet});
-    var service = connection.Call;
-    Assert.isFunction(service.connection._registeredEventHandlers['call'][0]);
+    Assert.isObject(this.conn.Call,
+                   "Jitsi.Service.Call was not created, can't do much");
   },
 
   testCreate: function() {
     var Assert = YAHOO.util.Assert;
-    var applet = Jitsi.Applet.extend();
-    var connection = Jitsi.Connection.extend({appletAdapter: applet});
-    var service = connection.Call;
-    Assert.isFunction(service.create);
+    var service = this.conn.Call;
+    Assert.isTrue(service.create('sip'));
   },
 
   testHangup: function() {
     var Assert = YAHOO.util.Assert;
-    var applet = Jitsi.Applet.extend();
-    var connection = Jitsi.Connection.extend({appletAdapter: applet});
-    var service = connection.Call;
-    Assert.isFunction(service.hangup);
+    var service = this.conn.Call;
+    Assert.isTrue(service.hangup());
   },
 
   testHold: function() {
     var Assert = YAHOO.util.Assert;
-    var applet = Jitsi.Applet.extend();
-    var connection = Jitsi.Connection.extend({appletAdapter: applet});
-    var service = connection.Call;
-    Assert.isFunction(service.hold);
+    var service = this.conn.Call;
+    Assert.isTrue(service.hold(true));
   },
 
   testSendTone: function() {
     var Assert = YAHOO.util.Assert;
-    var applet = Jitsi.Applet.extend();
-    var connection = Jitsi.Connection.extend({appletAdapter: applet});
-    var service = connection.Call;
-    Assert.isFunction(service.sendTone);
+    var service = this.conn.Call;
+    Assert.isTrue(service.sendTone('*'));
   },
 
-  testTransfer: function() {
+  /**
+   * This unit test verifies two features
+   *
+   * First, a success verifies that our
+   * Jitsi.Connection object has properly
+   * registered from 'call' events from the applet.
+   *
+   * Second, a success verifies that
+   * an application using the SDK
+   * will receive call events
+   */
+  testFireOnCallEvent: function () {
     var Assert = YAHOO.util.Assert;
-    var applet = Jitsi.Applet.extend();
-    var connection = Jitsi.Connection.extend({appletAdapter: applet});
-    var service = connection.Call;
-    Assert.isFunction(service.transfer);
+
+    var handlerFired = false;
+    var handler = function (packet) {
+       handlerFired = true;
+    };
+
+    this.conn.Call.registerHandler('onCallEvent', handler);
+
+    /** test handler fires **/
+    var myJson = {"package":"call",
+                  "type":"outgoing-call",
+                  "details":""};
+
+    this.applet.fireEvent('call', myJson);
+    Assert.isTrue(handlerFired, 'handler did not fire');
+
+    this.conn.Call.unregisterHandler('onCallEvent');
+
+    handlerFired = false;
+    this.applet.fireEvent('call', myJson);
+    Assert.isFalse(handlerFired, 'handler should not fire');
+
   }
 
 }));

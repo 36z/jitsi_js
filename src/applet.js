@@ -29,12 +29,12 @@ Jitsi.Applet = Jitsi.Base.extend(
   init: Jitsi.Function.around(
     function($super) {
       this._handlers = {};
-      if (Jitsi.isFunction($super)) {
-        $super.apply(this, Array.from(arguments).slice(-1));
-      }
       if (this.appletID && this.globalEventReceiveFunctionName) {
         window[this.globalEventReceiveFunctionName] = this.receiveEvent;
         this.load(this);
+      }
+      if (Jitsi.isFunction($super)) {
+        $super.apply(this, Array.from(arguments).slice(-1));
       }
     }
   ),

@@ -131,7 +131,7 @@ Jitsi.Service.Register = Jitsi.Base.extend (
       var type = data.type;
       var that = this;
       return {
-        type: type,
+        type: that.type,
         unregister: function() {
           that.unregister();
         }

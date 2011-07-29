@@ -11,6 +11,15 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
   name: 'Jitsi Service Register Tests',
 
   setUp: function() {
+    this.data = {
+      "package":"registration",
+      "type":"registered",
+      "details":
+      {
+        "new-state":"registered"
+      }
+    };
+
     this.applet = Jitsi.Test.MockApplet.extend();
     this.conn = Jitsi.Connection.extend({appletAdapter: this.applet});
   },
@@ -43,7 +52,8 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
    *
    * First, a success verifies that our
    * Jitsi.Connection object has properly
-   * registered from 'registration' events from the applet
+   * registered for 'package' events
+   * from the applet
    *
    * Second, a success verifies that
    * an application using the SDK
@@ -55,25 +65,30 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
     var handlerFired = false;
     var handler = function (userAgent) {
       handlerFired = true;
-      Assert.areEqual(userAgent.type,"registered");
     };
 
     this.conn.Register.registerHandler('onRegisterEvent', handler);
 
-    var myJson = {
-      "package":"registration",
-      "type":"registered",
-      "details":""
-    };
-
-    this.applet.fireEvent('packages', myJson);
+    this.applet.fireEvent('packages', this.data);
     Assert.isTrue(handlerFired, 'handler did not fire');
 
     this.conn.Register.unregisterHandler('onRegisterEvent');
 
     handlerFired = false;
-    this.applet.fireEvent('packages', myJson);
+    this.applet.fireEvent('packages', this.data);
     Assert.isFalse(handlerFired, 'handler should not fire');
+  },
+
+  testRegisterEventUADialog: function() {
+    var Assert = YAHOO.util.Assert;
+    var that = this;
+    var handler = function(ua){
+      Assert.areEqual(ua.type, that.type);
+      Assert.isFunction(ua.unregister);
+    };
+
+    this.conn.Register.registerHandler('onRegisterEvent', handler);
+    this.applet.fireEvent('packages', this.data);
   }
 
 }));

@@ -177,7 +177,7 @@ Jitsi.Service.Call = Jitsi.Base.extend(
   callDialog: function(data) {
     if (data) {
       var callId = data["call-id"];
-      var type = data["type"];
+      var type = data.type;
       var call = data.details.call;
       var peers = data.details.peers;
       var that = this;

@@ -15,6 +15,12 @@
  * Applet <=> DOM bridge
  */
 
+/**
+function receiveJitsiEvent(rawEvent) {
+  DemoApp.Jitsi.applet.appletAdapter.receiveEvent(rawEvent);
+}
+**/
+
 Jitsi.Applet = Jitsi.Base.extend(
 {
   /**
@@ -22,15 +28,20 @@ Jitsi.Applet = Jitsi.Base.extend(
    */
   appletID: null,
 
+  applet: null,
+
   globalEventReceiveFunctionName: 'receiveJitsiEvent',
 
-  _handlers: {},
+  _handlers: null,
 
   init: Jitsi.Function.around(
     function($super) {
       this._handlers = {};
+      var that = this;
       if (this.appletID && this.globalEventReceiveFunctionName) {
-        window[this.globalEventReceiveFunctionName] = this.receiveEvent;
+        window[this.globalEventReceiveFunctionName] = function() {
+          return that.receiveEvent.apply(that, arguments);
+        };
         this.load(this);
       }
       if (Jitsi.isFunction($super)) {
@@ -47,7 +58,12 @@ Jitsi.Applet = Jitsi.Base.extend(
    * event  exists in Jitsi.Connection
    */
   receiveEvent: function(rawEvent) {
-    throw new Error("Must Implement");
+    var rawJsonEvt = JSON.parse(rawEvent);
+    for(var h in this._handlers) {
+      if(this._handlers.hasOwnProperty(h)){
+        this._handlers[h].call(null, rawJsonEvt);
+      }
+    }
   },
 
   /**
@@ -55,13 +71,15 @@ Jitsi.Applet = Jitsi.Base.extend(
    *
    * Fires the event into the applet
    */
-  sendEvent: function(rawEvent) {
-    throw new Error("Must Implement");
+  sendEvent: function(fn, args) {
+    console.log('sendEvent: ' + arguments);
+    this.applet.api(fn, args);
   },
 
   registerHandler: function(event, handler) {
     this.unregisterHandler(event);
     this._handlers[event] = handler;
+    console.log('--> handlers ' + this._handlers);
   },
 
   unregisterHandler: function(event) {
@@ -88,6 +106,7 @@ Jitsi.Applet = Jitsi.Base.extend(
         '<param name="MAYSCRIPT" value="true">' +
         '<param name="type" VALUE="application/x-java-applet">' +
         '<param name="scriptable" VALUE="true">' +
+        '<param name="callback" value="receiveJitsiEvent" />' +
         '<comment>' +
         '  <embed type="application/x-java-applet;jpi-version=1.6.0_24" mayscript ' +
         '    code=com.onsip.felix.AppletLauncher.class archive="GraphicalUAApp.jar" ' +
@@ -99,11 +118,13 @@ Jitsi.Applet = Jitsi.Base.extend(
         '</comment>' +
         '</object>';
     } else {
+      <!-- Jitsi.Applet -->
       embed_applet = '' +
         '<embed type="application/x-java-applet" mayscript ' +
         '    code=com.onsip.felix.AppletLauncher.class ' +
         '    archive="GraphicalUAApp.jar" name="' + id + '"' +
         '    id="' + id + '" width="5" height="5"> ' +
+        '  <param name=callback value="receiveJitsiEvent" />' +
         '  <param name="mayscript" value="mayscript" />' +
         '  <param name="type" value="application/x-java-applet" />' +
         '  <param name="scriptable" value="true" />' +
@@ -113,6 +134,16 @@ Jitsi.Applet = Jitsi.Base.extend(
     }
 
     var body = document.body;
+    alert(embed_applet);
+    var div = document.createElement('div');
+    div.id = 'jitsi-applet';
+    div.innerHTML = embed_applet;
+    if (document.body.firstChild){
+      body.insertBefore(div, document.body.firstChild);
+    } else {
+      body.appendChild(div);
+    }
 
+    this.applet = document.getElementById(id);
   }
 });

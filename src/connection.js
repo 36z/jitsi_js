@@ -144,9 +144,9 @@ Jitsi.Service.Register = Jitsi.Base.extend (
    *   this.connection.sendEvent('register',username, pwd, ...);
    */
   register: function(username, displayName, authUsername, passwd) {
-      return this.connection.sendEvent(this.api.REGISTER,
-                                       [username, displayName,
-                                        authUsername, passwd]);
+    var args = [username, displayName, authUsername, passwd];
+    console.log('registering in the Service ' + args.length);
+    return this.connection.sendEvent(this.api.REGISTER, args);
   },
 
   unregister: function() {
@@ -229,7 +229,12 @@ Jitsi.Service.Call = Jitsi.Base.extend(
    * @param {String} SIP Uri
    */
   create: function(sip) {
-    return this.connection.sendEvent(this.api.CREATE, [sip]);
+    if (sip){
+      if (sip.constructor == String){
+        return this.connection.sendEvent(this.api.CREATE, [sip]);
+      }
+    }
+    throw new Jitsi.Error("Invalid SIP URI, can't make call");
   },
 
   /**
@@ -383,8 +388,8 @@ Jitsi.Connection = Jitsi.Base.extend({
   /**
    * Make a call into the applet via the appletAdapter
    */
-  sendEvent: function(event) {
-    return this.appletAdapter.sendEvent(event);
+  sendEvent: function(fn, args) {
+    return this.appletAdapter.sendEvent(fn, args);
   },
 
   /**

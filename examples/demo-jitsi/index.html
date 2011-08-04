@@ -1,0 +1,142 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+          "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <title>OXJS Test Client</title>
+    <style type="text/css" media="all">@import "style.css";</style>
+  </head>
+
+  <body>
+    <div id="page">
+      <h1>Jitsi Test Client</h1>
+      <i>Documentation details of this sample can be found in the support file</i>
+      <a href="glue.js">glue.js</a>
+      <div id="err"></div>
+      <div id="loading">Applet Not Loaded</div>
+      <div id="logged_out_pane">
+        <h2>Dashboard Login</h2>
+
+        <form id="register" action="#">
+          <table>
+            <tr>
+              <th><label for="username">SIP Address</label></th>
+              <td>
+                <input type="text" name="username"
+                       id="username" value=""/>
+              </td>
+            </tr>
+            <tr>
+              <th><label for="auth-username">auth username</label></th>
+              <td>
+                <input type="text" name="auth-username"
+                       id="auth-username" value=""/>
+              </td>
+            </tr>
+            <tr>
+              <th><label for="password">Password</label></th>
+              <td>
+                <input type="password" name="password"
+                       id="password" value=""/>
+              </td>
+            </tr>
+            <tr>
+              <th></th>
+              <td><input type="submit" value="Register"></td>
+            </tr>
+          </table>
+        </form>
+      </div> <!-- #logged_out_pane -->
+
+      <div id="logged_in_pane" style="display: none;">
+        <div style="margin:0px 0px 0px;">
+          <div>You are logged in as: <em id="logged_in_as"></em></div>
+          <form id="unregister" action="#">
+            <input type="submit" value="unregister"></input>
+          </form>
+        </div>
+
+        <div id="message_pane">
+          <h2>Jitsi Events</h2>
+
+          <div id="message_pane_inner"></div>
+        </div>
+
+        <div id="jitsi-call" class="service">
+          <h2>Calls</h2>
+
+          <div>
+            <div class="jitsi create">
+              <h4>Create a Call</h4>
+              <div>
+                <span class="hint">Sample SIP Addresses:</span>
+                <ul class="example">
+                  <li>sip:john@example.onsip.com</li>
+                  <li>sip:16468729219@company.onsip.com</li>
+                </ul>
+              </div>
+
+              <form id="create-call" action="#">
+                <table>
+                  <tr>
+                    <td>To:</td>
+                    <td><input name="to" type="text"/></td>
+                  </tr>
+                  <tr>
+                    <td><input type="submit" value="Submit"/>
+                    </td>
+                  </tr>
+                </table>
+              </form>
+
+              <ul class="output create"></ul>
+            </div>
+          </div>
+
+          <div>
+            <div class="jitsi pickup">
+              <h4>Pickup Call</h4>
+              <form id="pickup-call" action="#">
+                <table>
+                  <tr>
+                    <td><input type="submit" value="Submit"/>
+                    </td>
+                  </tr>
+                </table>
+              </form>
+
+              <ul class="output pickup"></ul>
+            </div>
+          </div>
+
+
+          <div>
+            <div class="jitsi hangup">
+              <h4>Hangup Call</h4>
+              <div>
+                <form id="hangup-call" action="#">
+                  <table>
+                    <tr>
+                      <td><input type="submit" value="Submit"/>
+                      </td>
+                    </tr>
+                  </table>
+                </form>
+
+                <ul class="output hangup"></ul>
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+
+        <!-- #page -->
+
+        <!-- Load the Jitsi library. -->
+        <script src="../../jitsi.js"></script>
+
+        <!-- Load our demo application -->
+        <script src="../../frameworks/jquery/jquery-1.5.2.min.js"></script>
+        <script src="glue.js"></script>
+  </body>
+</html>

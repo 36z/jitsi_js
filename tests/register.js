@@ -16,7 +16,7 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
       "type":"registered",
       "details":
       {
-        "new-state":"registered"
+        "new-state":"Registered"
       }
     };
 
@@ -63,7 +63,7 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
     var Assert = YAHOO.util.Assert;
 
     var handlerFired = false;
-    var handler = function (userAgent) {
+    var handler = function (item) {
       handlerFired = true;
     };
 
@@ -82,9 +82,9 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
   testRegisterEventUADialog: function() {
     var Assert = YAHOO.util.Assert;
     var that = this;
-    var handler = function(ua){
-      Assert.areEqual(ua.type, that.type);
-      Assert.isFunction(ua.unregister);
+    var handler = function(item){
+      Assert.areEqual(item.type, that.type);
+      Assert.isFunction(item.unregister);
     };
 
     this.conn.Register.registerHandler('onRegisterEvent', handler);

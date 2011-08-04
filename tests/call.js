@@ -15,6 +15,7 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
     this.data = {
       "package":"call",
       "type":"outgoing-call",
+      "call-id":"12345",
       "details":
       {
         "call":
@@ -119,13 +120,13 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
     var Assert = YAHOO.util.Assert;
 
     var that = this;
-    var handler = function (dialog) {
-      Assert.areEqual(dialog.callId, that.data['call-id']);
-      Assert.areEqual(dialog.type, that.data.type);
-      Assert.areEqual(dialog.call, that.data.details.call);
-      Assert.isFunction(dialog.hangup);
-      Assert.isFunction(dialog.hold);
-      Assert.isFunction(dialog.sendTone);
+    var handler = function (item) {
+      Assert.areEqual(item.data['call-id'], that.data['call-id']);
+      Assert.areEqual(item.data.type, that.data.type);
+      Assert.areEqual(item.data.details.call, that.data.details.call);
+      Assert.isFunction(item.hangup);
+      Assert.isFunction(item.hold);
+      Assert.isFunction(item.sendTone);
     };
 
     this.conn.Call.registerHandler('onCallEvent', handler);

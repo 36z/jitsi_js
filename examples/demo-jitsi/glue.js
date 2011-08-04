@@ -82,25 +82,6 @@ function killBlock() {
 
 }
 
-DemoApp.Jitsi = Jitsi.Base.extend({
-
-  /**
-  doRegister: function (aForm) {
-    $('err').html('');
-
-    var jid  = aForm.username.value,
-        pass = aForm.password.value;
-    //this.bosh.connect(jid, pass, handleStatusChanged);
-  },
-
-  doUnregister: function () {
-    $('#logged_out_pane').show();
-    $('#logged_in_pane').hide();
-  }
-  **/
-
-});
-
 DemoApp.Jitsi = Jitsi.Base.extend(
 {
   applet: Jitsi.Connection.extend({
@@ -111,33 +92,55 @@ DemoApp.Jitsi = Jitsi.Base.extend(
 
   init: Jitsi.Function.around(
     function () {
+      this.applet.Call.registerHandler('onCallEvent',
+                                       this._handleCallEvents);
       this.applet.Loader.registerHandler('onLoadEvent',
                                          this._handleLoadEvents);
       this.applet.Register.registerHandler('onRegisterEvent',
                                            this._handleRegisterEvents);
-      this.applet.Call.registerHandler('onCallEvent',
-                                       this._handleCallEvents);
     }
   ),
 
-  _handleLoadEvents: function (evt) {
-
-  },
-
-  _handleCallEvents: function (dialog) {
-    console.log("CallDialog " + dialog);
-    var el = $('.jitsi .create .output');
-    if (el && el.length && el.length > 0) {
-      el.html("");
+  _handleCallEvents: function (callItem) {
+    var l = "";
+    if (callItem.data && callItem.data.details){
+      var type = callItem.data.type;
+      l = JSON.stringify(callItem.data);
+      l = "Received Call Event: " + type + " - " + l;
+      logMessage(l,false);
     }
   },
 
-  _handleRegisterEvents: function(userAgent) {
-    console.log("UserAgent " + userAgent);
-    var el = $('.jitsi .pickup .output ');
-    if (el && el.length && el.length > 0) {
-      el.html("");
+  _handleRegisterEvents: function(uaItem) {
+    var username, l;
+    if (uaItem) {
+      if (uaItem.data.type){
+        if (uaItem.data.type == 'registered') {
+          $('#logged_out_pane').hide();
+          $('#logged_in_pane').show();
+          username = _getFormValue('register', 'username');
+          $('#logged_in_as').html(username);
+        } else if (uaItem.data.type == 'unregistered') {
+          $('#logged_out_pane').show();
+          $('#logged_in_pane').hide();
+          $('#logged_in_as').html("");
+        }
+        l = JSON.stringify(uaItem.data);
+        l = "Recieved Register Event: " + uaItem.data.type + " - " + l;
+        logMessage(l,false);
+      }
     }
+  },
+
+  _handleLoadEvents: function (loadItem) {
+    /**
+    if (loadItem) {
+      if (loadItem.type) {
+        $("loading").html("Applet State: " + loadItem.type +
+                          ", Progress: " + loadItem.progress);
+      }
+    }
+     **/
   },
 
   register: function (formID) {
@@ -145,39 +148,59 @@ DemoApp.Jitsi = Jitsi.Base.extend(
         authUsername = _getFormValue(formID, 'auth-username'),
         passwd  = _getFormValue(formID, 'password');
 
-    this.applet.Register.register(username, 'oren',
-                                 authUsername, passwd);
-    return false;
+    return this.applet.Register.register(username, 'oren',
+                                         authUsername, passwd);
+  },
+
+  unregister: function(formID) {
+    this.applet.Register.unregister();
   },
 
   createCall: function (formID) {
     var to = _getFormValue(formID, 'to');
-    this.applet.Call.create(to);
-    return false;
+    return this.applet.Call.create(to);
   },
 
-  hangup: function() {
-    this.applet.Call.hangup();
+  answerCall: function(formID) {
+    return this.applet.Call.answer();
+  },
+
+  hangup: function(formID) {
+    return this.applet.Call.hangup();
   }
 
 });
 
 $(document).ready(function ()
 {
-
   $('#register').bind('submit', function (e) {
     e.preventDefault();
+    logMessage('sendEvent: register',true);
     DemoApp.Jitsi.register(this.id);
+  });
+
+  $('#unregister').bind('submit', function (e) {
+    e.preventDefault();
+    logMessage('SendEvent: unregister',true);
+    DemoApp.Jitsi.unregister(this.id);
   });
 
   $('#create-call').bind('submit', function (e) {
     e.preventDefault();
+    logMessage('sendEvent: create',true);
     DemoApp.Jitsi.createCall(this.id);
+  });
+
+  $('#pickup-call').bind('submit', function(e) {
+    e.preventDefault();
+    logMessage('sendEvent: answer',true);
+    DemoApp.Jitsi.answerCall(this.id);
   });
 
   $('#hangup-call').bind('submit', function (e) {
     e.preventDefault();
-    DemoApp.Jitsi.hangup();
+    logMessage('sendEvent: hangup',true);
+    DemoApp.Jitsi.hangup(this.id);
   });
 
 });

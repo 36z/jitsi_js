@@ -48,7 +48,7 @@ input {
 /*  top: 0;
   right: 10px; */
   width: 500px;
-  height: 800px;
+  height: 400px;
   padding: 1ex;
   border: 1px solid #999;
   background-color: #fafafa;
@@ -74,5 +74,4 @@ input {
 .hint {
  font-size: 12px;
  font-style: italic;
- 
 }

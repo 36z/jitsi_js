@@ -59,11 +59,11 @@ Jitsi.Base = {
           val = obj[prop];
           cur = this[prop];
 
-          if (Jitsi.isFunction(val) && val._xcInferior && cur) {
+          if (Jitsi.isFunction(val) && val._jtInferior && cur) {
             continue;
           }
 
-          if (Jitsi.isFunction(val) && val._xcAround) {
+          if (Jitsi.isFunction(val) && val._jtAround) {
             fn = (cur && Jitsi.isFunction(cur)) ? cur : empty;
             val = val.curry(fn);
           }

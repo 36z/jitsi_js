@@ -12,6 +12,14 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
   name: 'Jitsi Service Loader Tests',
 
   setUp: function() {
+    this.data = {
+      "package":"loader",
+      "type":"loading",
+      "details":
+      {
+        "progress":"80"
+      }
+    };
     this.applet = Jitsi.Test.MockApplet.extend();
     this.conn = Jitsi.Connection.extend({appletAdapter: this.applet});
   },
@@ -48,21 +56,28 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
 
     this.conn.Loader.registerHandler('onLoadEvent', handler);
 
-    /** test handler fires **/
-    var myJson = {
-      "package":"loader",
-      "type":"loaded",
-      "details":""};
-
-    this.applet.fireEvent('packages', myJson);
+    this.applet.fireEvent('packages', this.data);
     Assert.isTrue(handlerFired, 'handler did not fire');
 
     this.conn.Loader.unregisterHandler('onLoadEvent');
 
     handlerFired = false;
-    this.applet.fireEvent('packages', myJson);
+    this.applet.fireEvent('packages', this.data);
     Assert.isFalse(handlerFired, 'handler should not fire');
 
+  },
+
+  testLoadEventItem: function () {
+    var Assert = YAHOO.util.Assert;
+    var that = this;
+    var handler = function (item) {
+      Assert.areEqual(item.data.progress, that.data.progress);
+      Assert.areEqual(item.data.type, that.data.type);
+    };
+
+    this.conn.Loader.registerHandler('onLoadEvent', handler);
+    this.applet.fireEvent('packages', this.data);
   }
+
 
 }));

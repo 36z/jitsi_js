@@ -116,7 +116,7 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
    * on the object to ease the
    * management of phone calls
    */
-  testCallEventDialogArg: function () {
+  testCallEventItem: function () {
     var Assert = YAHOO.util.Assert;
 
     var that = this;

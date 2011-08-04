@@ -79,7 +79,7 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
     Assert.isFalse(handlerFired, 'handler should not fire');
   },
 
-  testRegisterEventUADialog: function() {
+  testRegisterEventUAItem: function() {
     var Assert = YAHOO.util.Assert;
     var that = this;
     var handler = function(item){

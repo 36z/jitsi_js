@@ -1,11 +1,3 @@
-Jitsi.UserAgent = Jitsi.Base.extend(
-{
-  fromObject: function() {
-
-  }
-
-});
-
 Jitsi.Mixin = {};
 
 Jitsi.Mixin.RegistrationHandler = Jitsi.Base.extend({
@@ -102,10 +94,6 @@ Jitsi.Service.Register = Jitsi.Base.extend (
     }
   ),
 
-  /**
-   * -- registration callbacks
-   *   onRegisterEvent: userAgent
-   */
   _handleRegisterEvents: function(regEvent) {
     var jevt = null;
     var type = null;
@@ -119,24 +107,19 @@ Jitsi.Service.Register = Jitsi.Base.extend (
     if (jevt && jevt.type) {
       type = jevt.type;
       if (type.constructor == String){
-        this.fireHandler('onRegisterEvent', this.userAgent(jevt));
+        this.fireHandler('onRegisterEvent', this.makeUserAgentItem(jevt));
         return this;
       }
     }
     throw new Jitsi.Error("Could not parse register event");
   },
 
-  userAgent: function(data) {
-    if (data) {
-      var type = data.type;
-      var that = this;
-      return {
-        type: that.type,
-        unregister: function() {
-          that.unregister();
-        }
-      };
-    }
+  makeUserAgentItem: function(data) {
+    var uaItem = Jitsi.Service.Register.Item.extend({
+      service: this,
+      data: data
+    });
+    return uaItem;
   },
 
   /**
@@ -145,7 +128,6 @@ Jitsi.Service.Register = Jitsi.Base.extend (
    */
   register: function(username, displayName, authUsername, passwd) {
     var args = [username, displayName, authUsername, passwd];
-    console.log('registering in the Service ' + args.length);
     return this.connection.sendEvent(this.api.REGISTER, args);
   },
 
@@ -153,6 +135,14 @@ Jitsi.Service.Register = Jitsi.Base.extend (
     return this.connection.sendEvent(this.api.UNREGISTER, []);
   }
 
+});
+
+Jitsi.Service.Register.Item = Jitsi.Base.extend({
+  service: null,
+  data: null,
+  unregister: function(){
+    this.service.unregister();
+  }
 });
 
 Jitsi.Service.Call = Jitsi.Base.extend(
@@ -174,51 +164,20 @@ Jitsi.Service.Call = Jitsi.Base.extend(
     }
   ),
 
-  callDialog: function(data) {
-    if (data) {
-      var callId = data["call-id"];
-      var type = data.type;
-      var call = data.details.call;
-      var peers = data.details.peers;
-      var that = this;
-      return {
-        callID: callId,
-        type: type,
-        call: call,
-        peers: peers,
-
-        hangup: function() {
-          that.hangup();
-        },
-        hold: function() {
-          that.hold();
-        },
-        sendTone: function(key) {
-          that.sendTone(key);
-        }
-      };
-    }
+  makeCallItem: function(data) {
+    var callItem = Jitsi.Service.Call.Item.extend({
+      service: this,
+      data: data
+    });
+    return callItem;
   },
 
-  /**
-   * -- call callbacks
-   * onCallEvent: callDialog
-   */
   _handleCallEvents: function(callEvent) {
     var jevt = null;
     var type = null;
     if (callEvent) {
-      if (callEvent.constructor == String) {
-        jevt = JSON.parse(callEvent);
-      } else if (callEvent.constructor == Object) {
-        jevt = callEvent;
-      }
-    }
-    if (jevt && jevt.type) {
-      type = jevt.type;
-      if (type.constructor == String){
-        this.fireHandler('onCallEvent', this.callDialog(jevt));
-        return this;
+      if (callEvent.type) {
+        return this.fireHandler('onCallEvent', this.makeCallItem(callEvent));
       }
     }
     throw new Jitsi.Error("Could not parse callEvent");
@@ -226,15 +185,21 @@ Jitsi.Service.Call = Jitsi.Base.extend(
 
   /**
    * Make a call
-   * @param {String} SIP Uri
+   *
+   * @param {String} to the SIP address
+   * @param {String} setupCallId binds the create call request
+   *                             to call publish events
    */
-  create: function(sip) {
-    if (sip){
-      if (sip.constructor == String){
-        return this.connection.sendEvent(this.api.CREATE, [sip]);
-      }
+  create: function(to, setupCallId) {
+    if (to){
+      setupCallId = setupCallId || '';
+      return this.connection.sendEvent(this.api.CREATE, [to, setupCallId]);
     }
-    throw new Jitsi.Error("Invalid SIP URI, can't make call");
+    throw new Jitsi.Error("Invalid to SIP address, can't make call");
+  },
+
+  answer: function() {
+    return this.connection.sendEvent(this.api.REQUESTED, []);
   },
 
   /**
@@ -242,18 +207,15 @@ Jitsi.Service.Call = Jitsi.Base.extend(
    */
   hangup: function() {
     // TODO: support peerId
-    return this.connection.sendEvent(this.api.HANGUP, []);
+    return this.connection.sendEvent(this.api.TERMINATE, []);
   },
 
   /**
    * Hold
    */
-  hold: function(bHold) {
-    if (bHold){
-      bHold = bHold.toString().trim();
-      if (bHold == 'true' || bHold == 'false'){
-        return this.connection.sendEvent(this.api.HOLD, [bHold]);
-      }
+  hold: function(hold) {
+    if (hold){
+      return this.connection.sendEvent(this.api.HOLD, [hold]);
     }
     throw new Jitsi.Error('Invalid parameter for hold , should be boolean');
   },
@@ -277,6 +239,40 @@ Jitsi.Service.Call = Jitsi.Base.extend(
 
 });
 
+Jitsi.Service.Call.Item = Jitsi.Base.extend({
+  service: null,
+
+  data: null,
+
+  /**
+   *
+   * @type String
+   */
+  callID: null,
+
+  init: function(){
+    if (this.data){
+      this.callID = this.data['call-id'];
+    }
+  },
+  hangup: function(){
+    this.service.hangup();
+  },
+  hold: function(hold){
+    this.service.hold(hold);
+  },
+  answer: function(){
+    this.service.answer();
+  },
+  sendTone: function(key){
+    this.service.sendTone(key);
+  },
+  mute: function(mute){
+    this.service.mute(mute);
+  }
+});
+
+
 Jitsi.Service.Loader = Jitsi.Base.extend (
   Jitsi.Mixin.RegistrationHandler, {
 
@@ -294,35 +290,42 @@ Jitsi.Service.Loader = Jitsi.Base.extend (
     }
   ),
 
-  /**
-   * -- loader callbacks
-   * load: function() {},
-   * onLoading: function() {},
-   * onLoaded: function() {}
-   *
-   * example:
-   *   this.fireHandler('onLoading',args)
-   */
+  makeLoadItem: function(data) {
+    var item = Jitsi.Service.Loader.Item.extend({
+      service: this,
+      data: data
+    });
+    return item;
+  },
+
   _handleLoadEvents: function(loadEvent) {
-    var jevt = null;
-    var type = null;
     if (loadEvent) {
-      if (loadEvent.constructor == String) {
-        jevt = JSON.parse(loadEvent);
-      } else if (loadEvent.constructor == Object) {
-        jevt = loadEvent;
-      }
-    }
-    if (jevt && jevt.type) {
-      type = jevt.type;
-      if (type.constructor == String){
-        this.fireHandler('onLoadEvent', jevt);
-        return this;
+      if (loadEvent.type){
+        return this.fireHandler('onLoadEvent', makeLoadItem(loadEvent));
       }
     }
     throw new Jitsi.Error("Could not parse loadEvent");
   }
 });
+
+Jitsi.Service.Loader.Item = Jitsi.Base.extend({
+  service: null,
+
+  data: null,
+
+  progress: null,
+
+  type: null,
+
+  init: function(){
+    if (this.data){
+      this.progress = this.data.details.progress;
+      this.progress = isNaN(this.progress) ? 0: this.progress;
+      this.type = this.data.type;
+    }
+  }
+});
+
 
 /**
  * EventDispatch Layer

@@ -77,6 +77,12 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
     Assert.isTrue(service.sendTone('*'));
   },
 
+  testAnswer: function() {
+    var Assert = YAHOO.util.Assert;
+    var service = this.conn.Call;
+    Assert.isTrue(service.answer());
+  },
+
   /**
    * This unit test verifies two features
    *

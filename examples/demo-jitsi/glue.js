@@ -136,8 +136,8 @@ DemoApp.Jitsi = Jitsi.Base.extend(
     if (loadItem) {
       if (loadItem.type) {
         $("#loading").html("Applet State: " + loadItem.type +
-                          ", Progress: " + loadItem.progress);
-      }
+                             ", Progress: " + loadItem.progress);
+      } 
     }
   },
 
@@ -146,7 +146,16 @@ DemoApp.Jitsi = Jitsi.Base.extend(
         authUsername = _getFormValue(formID, 'auth-username'),
         passwd  = _getFormValue(formID, 'password');
 
-    return this.applet.Register.register(username, 'oren',
+    var displayName = "test";
+    if (username && username.length)
+    {
+      var idx = username.indexOf('@');
+      if (idx != -1){
+        displayName = username.substr(0, idx);
+      }
+    }
+
+    return this.applet.Register.register(username, displayName,
                                          authUsername, passwd);
   },
 

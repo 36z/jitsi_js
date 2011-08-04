@@ -272,7 +272,6 @@ Jitsi.Service.Call.Item = Jitsi.Base.extend({
   }
 });
 
-
 Jitsi.Service.Loader = Jitsi.Base.extend (
   Jitsi.Mixin.RegistrationHandler, {
 
@@ -301,7 +300,7 @@ Jitsi.Service.Loader = Jitsi.Base.extend (
   _handleLoadEvents: function(loadEvent) {
     if (loadEvent) {
       if (loadEvent.type){
-        return this.fireHandler('onLoadEvent', makeLoadItem(loadEvent));
+        return this.fireHandler('onLoadEvent', this.makeLoadItem(loadEvent));
       }
     }
     throw new Jitsi.Error("Could not parse loadEvent");

@@ -134,7 +134,6 @@ Jitsi.Applet = Jitsi.Base.extend(
     }
 
     var body = document.body;
-    alert(embed_applet);
     var div = document.createElement('div');
     div.id = 'jitsi-applet';
     div.innerHTML = embed_applet;

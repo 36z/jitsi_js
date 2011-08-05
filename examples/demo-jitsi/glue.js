@@ -153,17 +153,21 @@ DemoApp.Jitsi = Jitsi.Base.extend(
   },
 
   _handleLoadEvents: function (loadItem) {
+    logMessage(JSON.stringify(loadItem.data),false);
     var msg = "";
     if (loadItem) {
       if (loadItem.type) {
         if (loadItem.data && loadItem.data.details) {
           msg = loadItem.data.details.message;
         }
-        $("#loading").html("Applet State: " + loadItem.type +
-                           ", Progress: " + loadItem.progress +
-                           ", status: " + msg);
+        $("#load-state").text(loadItem.type);
+        $("#load-status-message").text(msg);
+        document.getElementById("load-progress").value = loadItem.data.details.progress;
       }
     }
+
+    if (loadItem.type == "loaded")
+      $("#logged_out_pane").show();
   },
 
   register: function (formID) {
@@ -208,9 +212,26 @@ var onerror = function (e) {
 };
 
 $(document).ready(function() {
-  $('#applet-codebase').val(Jitsi.Applet.codebase);
+  var parsedHash = function(hash) {
+    hash = hash.replace(/^(#)/,"");
+
+    var hashParts = hash.split(",");
+    var ret = {};
+    var tmp;
+
+    for (var i=0;i<hashParts.length;i++) {
+      tmp = hashParts[i].split("=");
+      ret[tmp[0]] = tmp[1];
+    }
+    return ret;
+  }(location.hash);
+
+  var codebase=parsedHash.codebase || Jitsi.Applet.codebase;
+  $('#applet-codebase').val(codebase);
 
   $('#applet-load').click(function() {
+    $("#load-progress").css({visibility: 'visible'});
+
     var codebase = $('#applet-codebase').val();
     loadApplet(codebase);
   });

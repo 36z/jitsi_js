@@ -136,8 +136,9 @@ DemoApp.Jitsi = Jitsi.Base.extend(
     if (loadItem) {
       if (loadItem.type) {
         $("#loading").html("Applet State: " + loadItem.type +
-                             ", Progress: " + loadItem.progress);
-      } 
+                           ", Progress: " + loadItem.progress +
+                          ", status: " + loadItem.data.details.message);
+      }
     }
   },
 

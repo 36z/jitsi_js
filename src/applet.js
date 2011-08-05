@@ -91,7 +91,6 @@ Jitsi.Applet = Jitsi.Base.extend(
   registerHandler: function(event, handler) {
     this.unregisterHandler(event);
     this._handlers[event] = handler;
-    console.log('--> handlers ' + this._handlers);
   },
 
   unregisterHandler: function(event) {

@@ -69,6 +69,37 @@ function _addOutput(selector, msg) {
   $(selector).append("<li>" + msg + "</li>");
 }
 
+function _generateHangupTemplate(id){
+  var divEl = "" +
+    "<h4>Hangup Call (callId " + id + ")</h4>" +
+    "<div>" +
+      "<form id=\"hangup-call-" + id + "\" action=\"#\">" +
+        "<table>" +
+          "<tr>" +
+            "<td><input type=\"submit\" value=\"Submit\"/></td>" +
+          "</tr>" +
+        "</table>" +
+      "</form>" +
+    "</div>";
+
+  return divEl;
+}
+
+function _generatePickupTemplate(id){
+  var divEl = "" +
+    "<h4>Pickup Call (callId " + id + ")</h4>" +
+    "<div>" +
+      "<form id=\"pickup-call-" + id + "\" action=\"#\">" +
+        "<table>" +
+          "<tr>" +
+            "<td><input type=\"submit\" value=\"Submit\"/></td>" +
+          "</tr>" +
+        "</table>" +
+      "</form>" +
+    "</div>";
+  return divEl;
+}
+
 function loadApplet(codebase) {
   DemoApp.Jitsi = DemoApp.Jitsi.extend({
     applet: Jitsi.Connection.extend({
@@ -106,6 +137,7 @@ function loadApplet(codebase) {
     DemoApp.Jitsi.createCall(this.id);
   });
 
+  /**
   $('#pickup-call').bind('submit', function(e) {
     e.preventDefault();
     logMessage('sendEvent: answer',true);
@@ -117,10 +149,10 @@ function loadApplet(codebase) {
     logMessage('sendEvent: hangup',true);
     DemoApp.Jitsi.hangup(this.id);
   });
+   **/
 }
 
-DemoApp.Jitsi = Jitsi.Base.extend(
-{
+DemoApp.Jitsi = Jitsi.Base.extend({
   _handleCallEvents: function (callItem) {
     var l = "";
     if (callItem.data && callItem.data.details){
@@ -128,6 +160,20 @@ DemoApp.Jitsi = Jitsi.Base.extend(
       l = JSON.stringify(callItem.data);
       l = "Received Call Event: " + type + " - " + l;
       logMessage(l,false);
+      if (callItem.data.type == 'confirmed'){
+        var cid = callItem.callID;
+        var tmpl = _generateHangupTemplate(cid);
+        var innerHtml = $("hangup-container").html();
+        var that = this;
+        $("#hangup-container").html(innerHtml + tmpl);
+        $(".jitsi.hangup").show();
+        $('#hangup-call-' + cid).bind('submit', function (e) {
+          e.preventDefault();
+          logMessage('sendEvent: hangup', true);
+          that.hangup();
+        });
+
+      }
     }
   },
 
@@ -138,12 +184,14 @@ DemoApp.Jitsi = Jitsi.Base.extend(
         if (uaItem.data.type == 'registered') {
           $('#logged_out_pane').hide();
           $('#logged_in_pane').show();
+          $('#applet-config').hide();
           username = _getFormValue('register', 'username');
           $('#logged_in_as').html(username);
         } else if (uaItem.data.type == 'unregistered') {
           $('#logged_out_pane').show();
           $('#logged_in_pane').hide();
           $('#logged_in_as').html("");
+          $('#applet-config').show();
         }
         l = JSON.stringify(uaItem.data);
         l = "Recieved Register Event: " + uaItem.data.type + " - " + l;
@@ -208,8 +256,8 @@ var onerror = function (e) {
 };
 
 $(document).ready(function() {
-  $('#applet-codebase').val(Jitsi.Applet.codebase);
-
+  var defaultCB = Jitsi.Applet.codebase + "/~oren/applet";
+  $('#applet-codebase').val(defaultCB);
   $('#applet-load').click(function() {
     var codebase = $('#applet-codebase').val();
     loadApplet(codebase);

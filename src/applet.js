@@ -28,6 +28,12 @@ Jitsi.Applet = Jitsi.Base.extend(
    */
   appletID: null,
 
+  codebase: function(location) {
+    var host = location.host;
+    var proto = location.protocol;
+    return [proto,host].join("//");
+  }(window.location),
+
   applet: null,
 
   globalEventReceiveFunctionName: 'receiveJitsiEvent',
@@ -58,11 +64,17 @@ Jitsi.Applet = Jitsi.Base.extend(
    * event  exists in Jitsi.Connection
    */
   receiveEvent: function(rawEvent) {
-    var rawJsonEvt = JSON.parse(rawEvent);
-    for(var h in this._handlers) {
-      if(this._handlers.hasOwnProperty(h)){
-        this._handlers[h].call(null, rawJsonEvt);
+    try {
+      var rawJsonEvt = JSON.parse(rawEvent);
+      for(var h in this._handlers) {
+        if(this._handlers.hasOwnProperty(h)){
+          this._handlers[h].call(null, rawJsonEvt);
+        }
       }
+    } catch(e) {
+      Jitsi.error('Jitsi.Applet.receiveEvent received error handling event');
+      Jitsi.log("arguments:",arguments);
+      Jitsi.log("error:",e);
     }
   },
 
@@ -90,6 +102,7 @@ Jitsi.Applet = Jitsi.Base.extend(
 
   load: function(template) {
     var id = template.appletID,
+      codebase = template.codebase,
       eventSink = template.globalEventReceiveFunctionName;
 
     var app = navigator.appName, embed_applet;
@@ -121,7 +134,8 @@ Jitsi.Applet = Jitsi.Base.extend(
       <!-- Jitsi.Applet -->
       embed_applet = '' +
         '<embed type="application/x-java-applet" mayscript ' +
-        '    code=com.onsip.felix.AppletLauncher.class ' +
+        '    codebase="' + codebase + '"' +
+        '    code="com.onsip.felix.AppletLauncher.class" ' +
         '    archive="GraphicalUAApp.jar" name="' + id + '"' +
         '    id="' + id + '" width="5" height="5"> ' +
         '  <param name=callback value="receiveJitsiEvent" />' +

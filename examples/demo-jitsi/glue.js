@@ -133,11 +133,15 @@ DemoApp.Jitsi = Jitsi.Base.extend(
   },
 
   _handleLoadEvents: function (loadItem) {
+    var msg = "";
     if (loadItem) {
       if (loadItem.type) {
+        if (loadItem.data && loadItem.data.details) {
+          msg = loadItem.data.details.message;
+        }
         $("#loading").html("Applet State: " + loadItem.type +
                            ", Progress: " + loadItem.progress +
-                          ", status: " + loadItem.data.details.message);
+                           ", status: " + msg);
       }
     }
   },

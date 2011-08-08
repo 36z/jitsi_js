@@ -43,7 +43,8 @@ input {
 }
 
 #message_pane {
-/*  position: absolute; */
+  position: relative;
+  z-index: 1000;
   float: right;
 /*  top: 0;
   right: 10px; */

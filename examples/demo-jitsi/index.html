@@ -2,7 +2,7 @@
           "http://www.w3.org/TR/html4/strict.dtd">
 <html>
   <head>
-    <title>OXJS Test Client</title>
+    <title>JitsiJS Test Client</title>
     <style type="text/css" media="all">@import "style.css";</style>
   </head>
 
@@ -12,7 +12,21 @@
       <i>Documentation details of this sample can be found in the support file</i>
       <a href="glue.js">glue.js</a>
       <div id="err"></div>
-      <div id="loading">Applet Not Loaded</div>
+      <div id="loading">
+        <label>Applet State:</label>
+        <span id="load-state">not loaded</span>
+        <label>Status:</label>
+        <span id="load-status-message"></span>
+        <div>
+          <progress id="load-progress" max="100" style="visibility: hidden"/>
+        </div>
+      </div>
+
+      <div id="message_pane">
+        <h2>Jitsi Events</h2>
+        <div id="message_pane_inner"></div>
+      </div>
+
       <div id="applet-config">
         <h2>Applet Settings</h2>
         <form id="applet-settings">
@@ -23,7 +37,7 @@
           <input type="button" id="applet-load" value="Load"/>
         </form>
       </div>
-      <div id="logged_out_pane">
+      <div id="logged_out_pane" style="display:none">
         <h2>Dashboard Login</h2>
 
         <form id="register" action="#">
@@ -63,12 +77,6 @@
           <form id="unregister" action="#">
             <input type="submit" value="unregister"></input>
           </form>
-        </div>
-
-        <div id="message_pane">
-          <h2>Jitsi Events</h2>
-
-          <div id="message_pane_inner"></div>
         </div>
 
         <div id="jitsi-call" class="service">

@@ -228,6 +228,17 @@ Jitsi.Service.Call = Jitsi.Base.extend(
     return this.connection.sendEvent(this.api.TERMINATE, params);
   },
 
+  mute: function(mute, callId) {
+    var params = [];
+    if (mute) {
+      if (callId) {
+        params.push(callId);
+      }
+      params.push(mute);
+    }
+    throw new Jitsi.Error('Invalid parameter for mute , should be boolean');
+  },
+
   /**
    * Hold
    *
@@ -297,8 +308,8 @@ Jitsi.Service.Call.Item = Jitsi.Base.extend({
   sendTone: function(key){
     this.service.sendTone(key);
   },
-  mute: function(mute){
-    this.service.mute(mute);
+  mute: function(callId, mute){
+    this.service.mute(callId, mute);
   }
 });
 

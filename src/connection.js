@@ -213,13 +213,16 @@ Jitsi.Service.Call = Jitsi.Base.extend(
 
   /**
    * Hang-up a call
+   *
+   * @param {String} callId optional callId to hangup on call
+   * @param {String} peerId optional peerId to hangup on peer
    */
   hangup: function(callId, peerId) {
     var params = [];
     if (callId) {
       params.push(callId);
       if (peerId) {
-        params.unshift(peerId);
+        params.push(peerId);
       }
     }
     return this.connection.sendEvent(this.api.TERMINATE, params);
@@ -227,10 +230,22 @@ Jitsi.Service.Call = Jitsi.Base.extend(
 
   /**
    * Hold
+   *
+   * @param {Boolean} hold required put on hold, take off hold
+   * @param {String} callId optional callId to put a call on hold
+   * @param {String} peerId optional peerId to put peer on hold
    */
-  hold: function(hold) {
+  hold: function(hold, callId, peerId) {
+    var params = [];
     if (hold){
-      return this.connection.sendEvent(this.api.HOLD, [hold]);
+      if (callId) {
+        params.push(callId);
+        if (peerId) {
+          params.push(peerId);
+        }
+      }
+      params.push(hold);
+      return this.connection.sendEvent(this.api.HOLD, params);
     }
     throw new Jitsi.Error('Invalid parameter for hold , should be boolean');
   },
@@ -273,8 +288,8 @@ Jitsi.Service.Call.Item = Jitsi.Base.extend({
   hangup: function(callId, peerId){
     this.service.hangup(callId, peerId);
   },
-  hold: function(hold){
-    this.service.hold(hold);
+  hold: function(hold, callId, peerId){
+    this.service.hold(hold, callId, peerId);
   },
   answer: function(callId){
     this.service.answer(callId);

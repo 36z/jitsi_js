@@ -31,19 +31,19 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
 
   testCreateRegisterService: function() {
     var Assert = YAHOO.util.Assert;
-    Assert.isObject(this.conn.Register,
+    Assert.isObject(this.conn.UserAgent,
                    "Jitsi.Service.Register was not created, can't do much");
   },
 
   testRegister: function() {
     var Assert = YAHOO.util.Assert;
-    var service = this.conn.Register;
+    var service = this.conn.UserAgent;
     Assert.isTrue(service.register('','','',''));
   },
 
   testUnregister: function() {
     var Assert = YAHOO.util.Assert;
-    var service = this.conn.Register;
+    var service = this.conn.UserAgent;
     Assert.isTrue(service.unregister());
   },
 
@@ -67,12 +67,12 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
       handlerFired = true;
     };
 
-    this.conn.Register.registerHandler('onRegisterEvent', handler);
+    this.conn.UserAgent.registerHandler('onRegisterEvent', handler);
 
     this.applet.fireEvent('packages', this.data);
     Assert.isTrue(handlerFired, 'handler did not fire');
 
-    this.conn.Register.unregisterHandler('onRegisterEvent');
+    this.conn.UserAgent.unregisterHandler('onRegisterEvent');
 
     handlerFired = false;
     this.applet.fireEvent('packages', this.data);
@@ -87,7 +87,7 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
       Assert.isFunction(item.unregister);
     };
 
-    this.conn.Register.registerHandler('onRegisterEvent', handler);
+    this.conn.UserAgent.registerHandler('onRegisterEvent', handler);
     this.applet.fireEvent('packages', this.data);
   }
 

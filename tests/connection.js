@@ -98,11 +98,11 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
     var Assert = YAHOO.util.Assert;
     var conn = Jitsi.Connection.extend({appletAdapter: this.applet});
     Assert.isObject(conn.Loader,
-                    "serivce Jitsi.Service.Loader was not initialized");
-    Assert.isObject(conn.Register,
-                    "serivce Jitsi.Service.Register was not initialized");
+                    "service Jitsi.Service.Loader was not initialized");
+    Assert.isObject(conn.UserAgent,
+                    "service Jitsi.Service.UserAgent was not initialized");
     Assert.isObject(conn.Call,
-                    "serivce Jitsi.Service.Call was not initialized");
+                    "service Jitsi.Service.Call was not initialized");
   },
 
   /**
@@ -113,11 +113,11 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
     var Assert = YAHOO.util.Assert;
     var conn = Jitsi.Connection.extend();
     Assert.isUndefined(conn.Loader,
-                    "serivce Jitsi.Service.Loader should not initialized");
+                    "service Jitsi.Service.Loader should not initialized");
     Assert.isUndefined(conn.Register,
-                    "serivce Jitsi.Service.Register should not initialized");
+                    "service Jitsi.Service.UserAgent should not initialized");
     Assert.isUndefined(conn.Call,
-                    "serivce Jitsi.Service.Call should not initialized");
+                    "service Jitsi.Service.Call should not initialized");
   }
 
 }));

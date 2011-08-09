@@ -15,7 +15,7 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
     this.data = {
       "package":"call",
       "type":"outgoing-call",
-      "call-id":"12345",
+      "callId":"12345",
       "details":
       {
         "call":
@@ -127,7 +127,7 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
 
     var that = this;
     var handler = function (item) {
-      Assert.areEqual(item.data['call-id'], that.data['call-id']);
+      Assert.areEqual(item.data['callId'], that.data['callId']);
       Assert.areEqual(item.data.type, that.data.type);
       Assert.areEqual(item.data.details.call, that.data.details.call);
       Assert.isFunction(item.hangup);

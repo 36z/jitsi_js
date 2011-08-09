@@ -71,15 +71,17 @@ function _addOutput(selector, msg) {
 
 function _generateHangupTemplate(id){
   var divEl = "" +
-    "<h4>Hangup Call (callId " + id + ")</h4>" +
-    "<div>" +
-      "<form id=\"hangup-call-" + id + "\" action=\"#\">" +
-        "<table>" +
-          "<tr>" +
-            "<td><input type=\"submit\" value=\"Submit\"/></td>" +
-          "</tr>" +
-        "</table>" +
-      "</form>" +
+    "<div id=\"hangup-container-" + id + "\" class=\"hangup-containers\">" +
+      "<h4>Hangup Call (callId " + id + ")</h4>" +
+      "<div>" +
+        "<form id=\"hangup-call-" + id + "\" action=\"#\">" +
+          "<table>" +
+            "<tr>" +
+              "<td><input type=\"submit\" value=\"Submit\"/></td>" +
+            "</tr>" +
+          "</table>" +
+        "</form>" +
+      "</div>" +
     "</div>";
 
   return divEl;
@@ -87,15 +89,17 @@ function _generateHangupTemplate(id){
 
 function _generatePickupTemplate(id){
   var divEl = "" +
-    "<h4>Pickup Call (callId " + id + ")</h4>" +
-    "<div>" +
-      "<form id=\"pickup-call-" + id + "\" action=\"#\">" +
-        "<table>" +
-          "<tr>" +
-            "<td><input type=\"submit\" value=\"Submit\"/></td>" +
-          "</tr>" +
-        "</table>" +
-      "</form>" +
+    "<div id=\"pickup-container-" + id + "\" class=\"pickup-containers\">" +
+      "<h4>Pickup Call (callId " + id + ")</h4>" +
+      "<div>" +
+        "<form id=\"pickup-call-" + id + "\" action=\"#\">" +
+          "<table>" +
+            "<tr>" +
+              "<td><input type=\"submit\" value=\"Submit\"/></td>" +
+            "</tr>" +
+          "</table>" +
+        "</form>" +
+      "</div>" +
     "</div>";
   return divEl;
 }
@@ -114,7 +118,7 @@ function loadApplet(codebase) {
                                        this._handleCallEvents);
       this.applet.Loader.registerHandler('onLoadEvent',
                                          this._handleLoadEvents);
-      this.applet.Register.registerHandler('onRegisterEvent',
+      this.applet.UserAgent.registerHandler('onRegisterEvent',
                                            this._handleRegisterEvents);
     })
   });
@@ -136,23 +140,77 @@ function loadApplet(codebase) {
     logMessage('sendEvent: create',true);
     DemoApp.Jitsi.createCall(this.id);
   });
-
-  /**
-  $('#pickup-call').bind('submit', function(e) {
-    e.preventDefault();
-    logMessage('sendEvent: answer',true);
-    DemoApp.Jitsi.answerCall(this.id);
-  });
-
-  $('#hangup-call').bind('submit', function (e) {
-    e.preventDefault();
-    logMessage('sendEvent: hangup',true);
-    DemoApp.Jitsi.hangup(this.id);
-  });
-   **/
 }
 
 DemoApp.Jitsi = Jitsi.Base.extend({
+
+  _handleConfirmed: function(callItem) {
+    var cid = callItem.callId;
+    var tmpl = _generateHangupTemplate(cid);
+    var innerHtml = $("#hangup-container").html();
+    var that = this;
+    if ($('#hangup-call-' + cid).html()){
+      return;
+    }
+    if ($('#pickup-container-' + cid).html()){
+      $('#pickup-container-' + cid).html("");
+    }
+    innerHtml = innerHtml || "";
+    tmpl = tmpl || "";
+    $("#hangup-container").html(innerHtml + tmpl);
+    var containers = $(".hangup-containers");
+    for (var i=0; i < containers.length; i++){
+      var eid = containers[i].getAttribute("id").split("-")[2];
+      if (eid){
+        var f = function(call_id){
+          $('#hangup-call-' + call_id).bind('submit', function (e) {
+            e.preventDefault();
+            logMessage('sendEvent: hangup', true);
+            callItem.hangup(call_id);
+          });
+        };
+        f(eid);
+      }
+    }
+  },
+
+  _handleRequested: function(callItem) {
+    var cid = callItem.callId;
+    var tmpl = _generatePickupTemplate(cid);
+    var innerHtml = $("#pickup-container").html();
+    var that = this;
+    if ($('#pickup-call-' + cid).html()){
+      return;
+    }
+
+    innerHtml = innerHtml || "";
+    tmpl = tmpl || "";
+    $("#pickup-container").html(innerHtml + tmpl);
+
+    var containers = $(".pickup-containers");
+    for (var i=0; i < containers.length; i++){
+      var eid = containers[i].getAttribute("id").split("-")[2];
+      if (eid){
+        var f = function(call_id){
+          $('#pickup-call-' + call_id).bind('submit', function (e) {
+            e.preventDefault();
+            logMessage('sendEvent: pickup', true);
+            callItem.answer(call_id);
+          });
+        };
+        f(eid);
+      }
+    }
+  },
+
+  _handleTerminated: function (callItem) {
+    var cid = callItem.callId;
+    if (cid){
+      $('#hangup-call-' + cid).unbind('submit');
+      $('#hangup-container-' + cid).html('');
+    }
+  },
+
   _handleCallEvents: function (callItem) {
     var l = "";
     if (callItem.data && callItem.data.details){
@@ -161,18 +219,11 @@ DemoApp.Jitsi = Jitsi.Base.extend({
       l = "Received Call Event: " + type + " - " + l;
       logMessage(l,false);
       if (callItem.data.type == 'confirmed'){
-        var cid = callItem.callID;
-        var tmpl = _generateHangupTemplate(cid);
-        var innerHtml = $("hangup-container").html();
-        var that = this;
-        $("#hangup-container").html(innerHtml + tmpl);
-        $(".jitsi.hangup").show();
-        $('#hangup-call-' + cid).bind('submit', function (e) {
-          e.preventDefault();
-          logMessage('sendEvent: hangup', true);
-          that.hangup();
-        });
-
+        DemoApp.Jitsi._handleConfirmed(callItem);
+      } else if (callItem.data.type == 'terminated'){
+        DemoApp.Jitsi._handleTerminated(callItem);
+      } else if (callItem.data.type == 'requested'){
+        DemoApp.Jitsi._handleRequested(callItem);
       }
     }
   },
@@ -232,25 +283,17 @@ DemoApp.Jitsi = Jitsi.Base.extend({
       }
     }
 
-    return this.applet.Register.register(username, displayName,
+    return this.applet.UserAgent.register(username, displayName,
                                          authUsername, passwd);
   },
 
   unregister: function(formID) {
-    this.applet.Register.unregister();
+    this.applet.UserAgent.unregister();
   },
 
   createCall: function (formID) {
     var to = _getFormValue(formID, 'to');
     return this.applet.Call.create(to);
-  },
-
-  answerCall: function(formID) {
-    return this.applet.Call.answer();
-  },
-
-  hangup: function(formID) {
-    return this.applet.Call.hangup();
   }
 
 });

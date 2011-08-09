@@ -289,11 +289,11 @@ Jitsi.Service.Call.Item = Jitsi.Base.extend({
    *
    * @type String
    */
-  callID: null,
+  callId: null,
 
   init: function(){
     if (this.data){
-      this.callID = this.data['call-id'];
+      this.callId = this.data.callId;
     }
   },
   hangup: function(callId, peerId){

@@ -198,16 +198,31 @@ Jitsi.Service.Call = Jitsi.Base.extend(
     throw new Jitsi.Error("Invalid to SIP address, can't make call");
   },
 
-  answer: function() {
-    return this.connection.sendEvent(this.api.REQUESTED, []);
+  /**
+   * Answer call
+   *
+   * @param {String} callId answer a call by callId
+   */
+  answer: function(callId) {
+    var params = [];
+    if (callId){
+      params.push(callId);
+    }
+    return this.connection.sendEvent(this.api.REQUESTED, params);
   },
 
   /**
    * Hang-up a call
    */
-  hangup: function() {
-    // TODO: support peerId
-    return this.connection.sendEvent(this.api.TERMINATE, []);
+  hangup: function(callId, peerId) {
+    var params = [];
+    if (callId) {
+      params.push(callId);
+      if (peerId) {
+        params.unshift(peerId);
+      }
+    }
+    return this.connection.sendEvent(this.api.TERMINATE, params);
   },
 
   /**
@@ -255,14 +270,14 @@ Jitsi.Service.Call.Item = Jitsi.Base.extend({
       this.callID = this.data['call-id'];
     }
   },
-  hangup: function(){
-    this.service.hangup();
+  hangup: function(callId, peerId){
+    this.service.hangup(callId, peerId);
   },
   hold: function(hold){
     this.service.hold(hold);
   },
-  answer: function(){
-    this.service.answer();
+  answer: function(callId){
+    this.service.answer(callId);
   },
   sendTone: function(key){
     this.service.sendTone(key);

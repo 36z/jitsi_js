@@ -75,7 +75,7 @@ Jitsi.Service.Api = {
   }
 };
 
-Jitsi.Service.Register = Jitsi.Base.extend (
+Jitsi.Service.UserAgent = Jitsi.Base.extend (
   Jitsi.Mixin.RegistrationHandler, {
 
   api: Jitsi.Service.Api.Register,
@@ -115,7 +115,7 @@ Jitsi.Service.Register = Jitsi.Base.extend (
   },
 
   makeUserAgentItem: function(data) {
-    var uaItem = Jitsi.Service.Register.Item.extend({
+    var uaItem = Jitsi.Service.UserAgent.Item.extend({
       service: this,
       data: data
     });
@@ -137,7 +137,7 @@ Jitsi.Service.Register = Jitsi.Base.extend (
 
 });
 
-Jitsi.Service.Register.Item = Jitsi.Base.extend({
+Jitsi.Service.UserAgent.Item = Jitsi.Base.extend({
   service: null,
   data: null,
   unregister: function(){
@@ -373,7 +373,7 @@ Jitsi.Service.Loader.Item = Jitsi.Base.extend({
 Jitsi.Connection = Jitsi.Base.extend({
   services: {
     Loader: Jitsi.Service.Loader,
-    Register: Jitsi.Service.Register,
+    UserAgent: Jitsi.Service.UserAgent,
     Call: Jitsi.Service.Call
   },
 

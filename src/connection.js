@@ -410,7 +410,7 @@ Jitsi.Connection = Jitsi.Base.extend({
         var that = this;
         var events = ['packages'];
 
-        dispatch = function (rawEvent) {
+        var dispatch = function (rawEvent) {
           that._dispatchEvent(rawEvent);
           return true;
         };

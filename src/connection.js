@@ -164,20 +164,29 @@ Jitsi.Service.Call = Jitsi.Base.extend(
     }
   ),
 
-  makeCallItem: function(data) {
-    var callItem = Jitsi.Service.Call.Item.extend({
-      service: this,
-      data: data
-    });
-    return callItem;
+  makeCallItems: function(data) {
+    var ret = [];
+    if (!data) return ret;
+    var details = data.details || {};
+    var peers = details.peers || [];
+    for (var i=0;i<peers.length;i++) {
+      ret.push(Jitsi.Service.Call.Item.extend({
+        service: this,
+        data: data,
+        peer: peers[i]
+      }));
+    }
+
+    return ret;
   },
 
   _handleCallEvents: function(callEvent) {
     var jevt = null;
     var type = null;
     if (callEvent) {
-      if (callEvent.type) {
-        return this.fireHandler('onCallEvent', this.makeCallItem(callEvent));
+      var items = this.makeCallItems(callEvent);
+      for (var i=0;i<items.length;i++) {
+        this.fireHandler('onCallEvent', items[i]);
       }
     }
     Jitsi.error("Could not parse callEvent");
@@ -281,7 +290,7 @@ Jitsi.Service.Call.Item = Jitsi.Base.extend({
 
   call: null,
 
-  peers: null,
+  peer: null,
 
   /**
    *
@@ -293,10 +302,15 @@ Jitsi.Service.Call.Item = Jitsi.Base.extend({
     var details;
     if (this.data){
       this.callId = this.data.callId;
-      if (this.data.details){
+      if (this.data.details) {
         details = this.data.details;
         this.call = details.call;
-        this.peers = details.peers;
+      }
+      if (this.peer) {
+        this.peer.hold = {
+          local: this.peer.hold && this.peer.hold.indexOf && this.peer.hold.indexOf('local') >= 0,
+          remote: this.peer.hold && this.peer.hold.indexOf && this.peer.hold.indexOf('remote') >= 0
+        };
       }
     }
   },

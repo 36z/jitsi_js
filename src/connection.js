@@ -285,6 +285,10 @@ Jitsi.Service.Call.Item = Jitsi.Base.extend({
 
   data: null,
 
+  call: null,
+
+  peers: null,
+
   /**
    *
    * @type String
@@ -292,24 +296,30 @@ Jitsi.Service.Call.Item = Jitsi.Base.extend({
   callId: null,
 
   init: function(){
+    var details;
     if (this.data){
       this.callId = this.data.callId;
+      if (this.data.details){
+        details = this.data.details;
+        this.call = details.call;
+        this.peers = details.peers;
+      }
     }
   },
-  hangup: function(callId, peerId){
-    this.service.hangup(callId, peerId);
+  hangup: function(peerId){
+    this.service.hangup(this.callId, peerId);
   },
-  hold: function(hold, callId, peerId){
-    this.service.hold(hold, callId, peerId);
+  hold: function(hold, peerId){
+    this.service.hold(hold, this.callId, peerId);
   },
-  answer: function(callId){
-    this.service.answer(callId);
+  answer: function(){
+    this.service.answer(this.callId);
   },
   sendTone: function(key){
     this.service.sendTone(key);
   },
-  mute: function(callId, mute){
-    this.service.mute(callId, mute);
+  mute: function(mute){
+    this.service.mute(this.callId, mute);
   }
 });
 

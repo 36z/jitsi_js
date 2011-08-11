@@ -71,7 +71,7 @@ function _addOutput(selector, msg) {
 
 function _generateHangupTemplate(id){
   var divEl = "" +
-    "<div id=\"hangup-container-" + id + "\" class=\"hangup-containers\">" +
+    "<div id=\"hang-up-" + id + "\" class=\"hangup-tmpl\">" +
       "<h4>Hangup Call (callId " + id + ")</h4>" +
       "<div>" +
         "<form id=\"hangup-call-" + id + "\" action=\"#\">" +
@@ -89,7 +89,7 @@ function _generateHangupTemplate(id){
 
 function _generatePickupTemplate(id){
   var divEl = "" +
-    "<div id=\"pickup-container-" + id + "\" class=\"pickup-containers\">" +
+    "<div id=\"pick-up-" + id + "\" class=\"pickup-tmpl\">" +
       "<h4>Pickup Call (callId " + id + ")</h4>" +
       "<div>" +
         "<form id=\"pickup-call-" + id + "\" action=\"#\">" +
@@ -103,6 +103,7 @@ function _generatePickupTemplate(id){
     "</div>";
   return divEl;
 }
+
 
 function loadApplet(codebase) {
   DemoApp.Jitsi = DemoApp.Jitsi.extend({
@@ -144,73 +145,6 @@ function loadApplet(codebase) {
 
 DemoApp.Jitsi = Jitsi.Base.extend({
 
-  _handleConfirmed: function(callItem) {
-    var cid = callItem.callId;
-    var tmpl = _generateHangupTemplate(cid);
-    var innerHtml = $("#hangup-container").html();
-    var that = this;
-    if ($('#hangup-call-' + cid).html()){
-      return;
-    }
-    if ($('#pickup-container-' + cid).html()){
-      $('#pickup-container-' + cid).html("");
-    }
-    innerHtml = innerHtml || "";
-    tmpl = tmpl || "";
-    $("#hangup-container").html(innerHtml + tmpl);
-    var containers = $(".hangup-containers");
-    for (var i=0; i < containers.length; i++){
-      var eid = containers[i].getAttribute("id").split("-")[2];
-      if (eid){
-        var f = function(call_id){
-          $('#hangup-call-' + call_id).bind('submit', function (e) {
-            e.preventDefault();
-            logMessage('sendEvent: hangup', true);
-            callItem.hangup(call_id);
-          });
-        };
-        f(eid);
-      }
-    }
-  },
-
-  _handleRequested: function(callItem) {
-    var cid = callItem.callId;
-    var tmpl = _generatePickupTemplate(cid);
-    var innerHtml = $("#pickup-container").html();
-    var that = this;
-    if ($('#pickup-call-' + cid).html()){
-      return;
-    }
-
-    innerHtml = innerHtml || "";
-    tmpl = tmpl || "";
-    $("#pickup-container").html(innerHtml + tmpl);
-
-    var containers = $(".pickup-containers");
-    for (var i=0; i < containers.length; i++){
-      var eid = containers[i].getAttribute("id").split("-")[2];
-      if (eid){
-        var f = function(call_id){
-          $('#pickup-call-' + call_id).bind('submit', function (e) {
-            e.preventDefault();
-            logMessage('sendEvent: pickup', true);
-            callItem.answer(call_id);
-          });
-        };
-        f(eid);
-      }
-    }
-  },
-
-  _handleTerminated: function (callItem) {
-    var cid = callItem.callId;
-    if (cid){
-      $('#hangup-call-' + cid).unbind('submit');
-      $('#hangup-container-' + cid).html('');
-    }
-  },
-
   _handleCallEvents: function (callItem) {
     var l = "";
     if (callItem.data && callItem.data.details){
@@ -224,6 +158,70 @@ DemoApp.Jitsi = Jitsi.Base.extend({
         DemoApp.Jitsi._handleTerminated(callItem);
       } else if (callItem.data.type == 'requested'){
         DemoApp.Jitsi._handleRequested(callItem);
+      }
+    }
+  },
+
+  _handleConfirmed: function(callItem) {
+    var injectHangupEl, callId;
+    callId = callItem.callId;
+    if (!callId || (callId.toString().length === 0)){
+      throw new Error("callId was invalid in _handleConfirmed, failing");
+    }
+    injectHangupEl = _generateHangupTemplate(callId);
+
+    // Hang up button exists, bail out
+    if ($('#hang-up-' + callId).html()){
+      return;
+    }
+
+    if ($('#pick-up-' + callId).html()){
+      $('#pick-up-' + callId).html("");
+    }
+
+    $("#hangup-container").append(injectHangupEl);
+
+    (function(item) {
+      $('#hangup-call-' + item.callId).bind('submit',{item:item}, function (e) {
+        e.preventDefault();
+        logMessage('sendEvent: hangup', true);
+        e.data.item.hangup();
+      });
+    }(callItem));
+
+  },
+
+  _handleRequested: function(callItem) {
+    var injectPickupEl, callId;
+    callId = callItem.callId;
+    if (!callId || (callId.toString().length === 0)){
+      throw new Error("callId was invalid in _handleRequested, failing");
+    }
+    injectPickupEl = _generatePickupTemplate(callId);
+
+    if ($('#pick-up-' + callId).html()){
+      return;
+    }
+
+    $("#pickup-container").append(injectPickupEl);
+
+    (function(item) {
+      $('#pickup-call-' + item.callId).bind('submit', function (e) {
+        e.preventDefault();
+        logMessage('sendEvent: pickup', true);
+        item.answer();
+      });
+    }(callItem));
+  },
+
+  _handleTerminated: function(callItem) {
+    var callId = callItem.callId;
+    if (callId){
+      $('#hangup-call-' + callId).unbind('submit');
+      $('#hang-up-' + callId).html('');
+      if ($('#pick-up-' + callId).html()){
+        $('#pickup-call-' + callId).unbind('submit');
+        $('#pick-up-' + callId).html("");
       }
     }
   },
@@ -293,7 +291,7 @@ DemoApp.Jitsi = Jitsi.Base.extend({
 
   createCall: function (formID) {
     var to = _getFormValue(formID, 'to');
-    return this.applet.Call.create(to);
+    return this.applet.Call.create(to, 'test-1-2-3');
   }
 
 });

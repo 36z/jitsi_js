@@ -181,15 +181,16 @@ Jitsi.Service.Call = Jitsi.Base.extend(
   },
 
   _handleCallEvents: function(callEvent) {
+    if (!callEvent) {
+      Jitsi.error("Could not parse callEvent");
+      return;
+    }
     var jevt = null;
     var type = null;
-    if (callEvent) {
-      var items = this.makeCallItems(callEvent);
-      for (var i=0;i<items.length;i++) {
-        this.fireHandler('onCallEvent', items[i]);
-      }
+    var items = this.makeCallItems(callEvent);
+    for (var i=0;i<items.length;i++) {
+      this.fireHandler('onCallEvent', items[i]);
     }
-    Jitsi.error("Could not parse callEvent");
   },
 
   /**

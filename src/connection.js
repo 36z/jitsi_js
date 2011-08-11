@@ -230,13 +230,10 @@ Jitsi.Service.Call = Jitsi.Base.extend(
 
   mute: function(mute, callId) {
     var params = [];
-    if (mute === true || mute === false) {
-      if (callId) {
-        params.push(callId);
-      }
-      params.push(mute);
+    if (callId) {
+      params.push(callId);
     }
-    throw new Jitsi.Error('Invalid parameter for mute , should be boolean');
+    params.push(!!mute);
   },
 
   /**
@@ -248,17 +245,14 @@ Jitsi.Service.Call = Jitsi.Base.extend(
    */
   hold: function(hold, callId, peerId) {
     var params = [];
-    if (hold === true || hold === false){
-      if (callId) {
-        params.push(callId);
-        if (peerId) {
-          params.push(peerId);
-        }
+    if (callId) {
+      params.push(callId);
+      if (peerId) {
+        params.push(peerId);
       }
-      params.push(hold);
-      return this.connection.sendEvent(this.api.HOLD, params);
     }
-    throw new Jitsi.Error('Invalid parameter for hold , should be boolean');
+    params.push(!!hold);
+    return this.connection.sendEvent(this.api.HOLD, params);
   },
 
   /**

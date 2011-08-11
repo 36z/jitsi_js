@@ -111,7 +111,7 @@ Jitsi.Service.UserAgent = Jitsi.Base.extend (
         return this;
       }
     }
-    throw new Jitsi.Error("Could not parse register event");
+    Jitsi.error("Could not parse register event");
   },
 
   makeUserAgentItem: function(data) {
@@ -180,7 +180,7 @@ Jitsi.Service.Call = Jitsi.Base.extend(
         return this.fireHandler('onCallEvent', this.makeCallItem(callEvent));
       }
     }
-    throw new Jitsi.Error("Could not parse callEvent");
+    Jitsi.error("Could not parse callEvent");
   },
 
   /**
@@ -195,7 +195,7 @@ Jitsi.Service.Call = Jitsi.Base.extend(
       setupCallId = setupCallId || '';
       return this.connection.sendEvent(this.api.CREATE, [to, setupCallId]);
     }
-    throw new Jitsi.Error("Invalid to SIP address, can't make call");
+    Jitsi.error("Invalid to SIP address, can't make call");
   },
 
   /**
@@ -265,11 +265,11 @@ Jitsi.Service.Call = Jitsi.Base.extend(
         return this.connection.sendEvent(this.api.SEND_TONE, [key]);
       }
     }
-    throw new Jitsi.Error('Invalid parameter key for sendTone');
+    Jitsi.error('Invalid parameter key for sendTone');
   },
 
   transfer: function() {
-    throw new Jitsi.Error("Future Implementation");
+    Jitsi.error("Future Implementation");
   }
 
 });
@@ -348,7 +348,7 @@ Jitsi.Service.Loader = Jitsi.Base.extend (
         return this.fireHandler('onLoadEvent', this.makeLoadItem(loadEvent));
       }
     }
-    throw new Jitsi.Error("Could not parse loadEvent");
+    Jitsi.error("Could not parse loadEvent");
   }
 });
 
@@ -484,7 +484,7 @@ Jitsi.Connection = Jitsi.Base.extend({
         return this._eventHandlersForPackage(packageName);
       }
     }
-    throw new Jitsi.Error("The applet returned bad data, " +
-                          "no package property found");
+    Jitsi.error("The applet returned bad data, " +
+                "no package property found");
   }
 });

@@ -248,7 +248,7 @@ Jitsi.Service.Call = Jitsi.Base.extend(
    */
   hold: function(hold, callId, peerId) {
     var params = [];
-    if (hold){
+    if (hold === true || hold === false){
       if (callId) {
         params.push(callId);
         if (peerId) {

@@ -230,7 +230,7 @@ Jitsi.Service.Call = Jitsi.Base.extend(
 
   mute: function(mute, callId) {
     var params = [];
-    if (mute) {
+    if (mute === true || mute === false) {
       if (callId) {
         params.push(callId);
       }

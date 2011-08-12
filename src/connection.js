@@ -307,14 +307,73 @@ Jitsi.Service.Call.Item = Jitsi.Base.extend({
         details = this.data.details;
         this.call = details.call;
       }
-      if (this.peer) {
-        this.peer.hold = {
-          local: this.peer.hold && this.peer.hold.indexOf && this.peer.hold.indexOf('local') >= 0,
-          remote: this.peer.hold && this.peer.hold.indexOf && this.peer.hold.indexOf('remote') >= 0
-        };
-      }
+      this._buildPeer();
+
+      this.type = this.data.type;
     }
   },
+
+  _buildPeer: function() {
+    if (!this.peer) return;
+
+    this.peer.hold = {
+      local: this.peer.hold && this.peer.hold.indexOf && this.peer.hold.indexOf('local') >= 0,
+      remote: this.peer.hold && this.peer.hold.indexOf && this.peer.hold.indexOf('remote') >= 0
+    };
+    this.peer.mute = (this.peer.mute === "true");
+
+    // replace duration (unix timestamp as String) with startTime as Date object
+    // TODO: jitsi events need to be more consistent w/ duration field
+    // (among others) - e.g. terminated events
+    if (parseInt(this.peer.duration)) {
+      this.peer.startTime = new Date();
+      this.peer.startTime.setTime(parseInt(this.peer.duration));
+      delete this.peer.duration;
+    }
+  },
+
+  /**
+   * @param {String} a URI
+   * @return {Object}
+   */
+  parseURI: function(uri) {
+    if (!uri) {
+      throw new Error("Unable to parse nonexistant URI");
+    }
+
+    var ret = {
+      uri: uri,
+      protocol: null,
+      userinfo: null,
+      domain: null,
+      address: null,
+      parametersRaw: null,
+      parameters: []
+    };
+
+    // TODO: this certainly isn't a perfect pattern
+    var sipURIPattern = /^(sip[s]?):([^@]+)@([^;]+)(?:[;](.*))?$/;
+    var matches = ret.uri.match(sipURIPattern);
+
+    if (matches) {
+      ret.protocol      = matches[1];
+      ret.userinfo      = matches[2];
+      ret.domain        = matches[3];
+      ret.parametersRaw = matches[4];
+      ret.address       = [matches[2],matches[3]].join("@");
+    }
+
+    if (ret.parametersRaw) {
+      var paramPairs = ret.parametersRaw.split(';'), pair;
+      for (var i=0; i<paramPairs.length; i++) {
+        pair = paramPairs[i].split("=");
+        ret.parameters[pair[0]] = pair[1];
+      }
+    }
+
+    return ret;
+  },
+
   hangup: function(peerId){
     this.service.hangup(this.callId, peerId);
   },

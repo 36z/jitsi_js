@@ -1,42 +1,16 @@
 /**
  *  Introduction:
  *  -------------
- *  glue.js is a sample application that spotlights OXJS,
- *  the JavaScript SDK developed by Junction Networks.
- *
- *  OX was implemented for the purpose of abstracting the
- *  low level XMPP messaging used for real-time events.
- *  In this light, developers could focus entirely on the
- *  business requirements of their application.
- *
- *  Use OXJS if you need to build a web application that
- *  features real-time call events. Use the sample code in
- *  glue.js to guide you in your development using OX against
- *  Junction's XMPP based API.
+ *  glue.js is a sample application that spotlights
+ *  Junction Networks Javascript SDK for interfacing
+ *  with the Jitsi Applet SIP Phone.
  *
  *  glue.js will illustrate how to :
  *
  *    - Make SIP calls
- *    - Retrieve notifications of call states
- *      (eg. Whether the call was answered, terminated, etc.)
- *    - Manage your Roster
- *
  *
  *  Getting Started:
  *  ----------------
- *  In order to work around Same Origin Policy issues, add the following
- *  snippet to your Apache config file:
- *
- *      SSLProxyEngine on
- *      ProxyPass /http-bind https://my.onsip.com/http-bind
- *      ProxyPassReverse /http-bind http://my.onsip.com/http-bind
- *
- *  To run this Demo application you'll need to point your root web
- *  folder to the root directory of your OXJS download.
- *  For instance :
- *      http://localhost/OXJS/examples/demo-strophe/index.html
- *  You can access API documentation via
- *      http://localhost/OXJS/doc/public/index.html
  *
  */
 
@@ -77,7 +51,8 @@ function _generateHangupTemplate(id){
         "<form id=\"hangup-call-" + id + "\" action=\"#\">" +
           "<table>" +
             "<tr>" +
-              "<td><input type=\"submit\" value=\"Submit\"/></td>" +
+              "<td><input type=\"button\" id=\"hold-" + id+ "\" value=\"hold\"/></td>" +
+              "<td><input type=\"submit\" value=\"hangup\"/></td>" +
             "</tr>" +
           "</table>" +
         "</form>" +
@@ -95,7 +70,8 @@ function _generatePickupTemplate(id){
         "<form id=\"pickup-call-" + id + "\" action=\"#\">" +
           "<table>" +
             "<tr>" +
-              "<td><input type=\"submit\" value=\"Submit\"/></td>" +
+              "<td><input type=\"button\" id=\"busy-" + id + "\" value=\"busy\"/></td>" +
+              "<td><input type=\"submit\" value=\"pickup\"/></td>" +
             "</tr>" +
           "</table>" +
         "</form>" +
@@ -103,7 +79,6 @@ function _generatePickupTemplate(id){
     "</div>";
   return divEl;
 }
-
 
 function loadApplet(codebase) {
   DemoApp.Jitsi = DemoApp.Jitsi.extend({
@@ -126,78 +101,106 @@ function loadApplet(codebase) {
 
   $('#register').bind('submit', function (e) {
     e.preventDefault();
-    logMessage('sendEvent: register',true);
+    logMessage('sendEvent: register', true);
     DemoApp.Jitsi.register(this.id);
   });
 
   $('#unregister').bind('submit', function (e) {
     e.preventDefault();
-    logMessage('SendEvent: unregister',true);
+    logMessage('SendEvent: unregister', true);
     DemoApp.Jitsi.unregister(this.id);
   });
 
   $('#create-call').bind('submit', function (e) {
     e.preventDefault();
-    logMessage('sendEvent: create',true);
+    logMessage('sendEvent: create', true);
     DemoApp.Jitsi.createCall(this.id);
   });
 }
 
 DemoApp.Jitsi = Jitsi.Base.extend({
 
-  _handleCallEvents: function (callItem) {
-    var l = "";
-    if (callItem.data && callItem.data.details){
-      var type = callItem.data.type;
-      l = JSON.stringify(callItem.data);
-      l = "Received Call Event: " + type + " - " + l;
-      logMessage(l,false);
-      if (callItem.data.type == 'confirmed'){
-        DemoApp.Jitsi._handleConfirmed(callItem);
-      } else if (callItem.data.type == 'terminated'){
-        DemoApp.Jitsi._handleTerminated(callItem);
-      } else if (callItem.data.type == 'requested'){
-        DemoApp.Jitsi._handleRequested(callItem);
+  _handleHold: function(callItem, hold) {
+    var callId = callItem.callId;
+    if (!callId || (callId.toString().length === 0)){
+      Jitsi.error("callId was invalid in _handleHold, failing");
+    }
+
+    if (hold){
+      if (hold.local){
+        $('#hold-' + callItem.callId).val('unhold');
+        $('#hold-' + callItem.callId).unbind('click');
+        $('#hold-' + callItem.callId).bind('click', {item:callItem}, function(e) {
+          e.preventDefault();
+          logMessage('sendEvent: unhold', true);
+          e.data.item.hold(false);
+        });
+      } else {
+        $('#hold-' + callItem.callId).val('hold');
+        $('#hold-' + callItem.callId).unbind('click');
+        $('#hold-' + callItem.callId).bind('click', {item:callItem}, function(e) {
+          e.preventDefault();
+          logMessage('sendEvent: hold', true);
+          e.data.item.hold(true);
+        });
       }
     }
   },
 
+  _getHoldObj : function(callItem) {
+    var peer;
+    var peers = callItem.data.details.peers;
+    if (peers.length > 0){
+      peer = peers[0];
+      return peer.hold;
+    }
+    return null;
+  },
+
+  _insertHangup: function(callItem) {
+    var callId = callItem.callId;
+    var hangupBtn = $('#hangup-call-' + callId);
+    if (!hangupBtn.html()){
+      injectHangupEl = _generateHangupTemplate(callId);
+      $("#hangup-container").append(injectHangupEl);
+
+      (function(item) {
+        $('#hangup-call-' + item.callId).bind('submit',{item:item},function(e) {
+          e.preventDefault();
+          logMessage('sendEvent: hangup', true);
+          e.data.item.hangup();
+        });
+      }(callItem));
+    }
+  },
+
+  _handleCreated: function(callItem) {
+    DemoApp.Jitsi._insertHangup(callItem);
+  },
+
   _handleConfirmed: function(callItem) {
-    var injectHangupEl, callId;
-    callId = callItem.callId;
+    var jitsi = DemoApp.Jitsi;
+    var callId = callItem.callId;
+    var hold;
     if (!callId || (callId.toString().length === 0)){
-      throw new Error("callId was invalid in _handleConfirmed, failing");
+      Jitsi.error("callId was invalid in _handleConfirmed, failing");
     }
-    injectHangupEl = _generateHangupTemplate(callId);
-
-    // Hang up button exists, bail out
-    if ($('#hang-up-' + callId).html()){
-      return;
-    }
-
     if ($('#pick-up-' + callId).html()){
+      $('#busy-' + callId).unbind('click');
+      $('#pickup-call-' + callId).unbind('submit');
       $('#pick-up-' + callId).html("");
     }
-
-    $("#hangup-container").append(injectHangupEl);
-
-    (function(item) {
-      $('#hangup-call-' + item.callId).bind('submit',{item:item}, function (e) {
-        e.preventDefault();
-        logMessage('sendEvent: hangup', true);
-        e.data.item.hangup();
-      });
-    }(callItem));
-
+    hold = jitsi._getHoldObj(callItem);
+    jitsi._insertHangup(callItem);
+    jitsi._handleHold(callItem, hold);
   },
 
   _handleRequested: function(callItem) {
-    var injectPickupEl, callId;
-    callId = callItem.callId;
+    var callId = callItem.callId;
     if (!callId || (callId.toString().length === 0)){
-      throw new Error("callId was invalid in _handleRequested, failing");
+      Jitsi.error("callId was invalid in _handleRequested, failing");
     }
-    injectPickupEl = _generatePickupTemplate(callId);
+    var injectPickupEl = _generatePickupTemplate(callId);
 
     if ($('#pick-up-' + callId).html()){
       return;
@@ -206,10 +209,15 @@ DemoApp.Jitsi = Jitsi.Base.extend({
     $("#pickup-container").append(injectPickupEl);
 
     (function(item) {
-      $('#pickup-call-' + item.callId).bind('submit', function (e) {
+      $('#pickup-call-' + item.callId).bind('submit', function(e) {
         e.preventDefault();
         logMessage('sendEvent: pickup', true);
         item.answer();
+      });
+      $('#busy-' + item.callId).bind('click', function(e) {
+        e.preventDefault();
+        logMessage('sendEvent: busy here', true);
+        item.hangup();
       });
     }(callItem));
   },
@@ -217,17 +225,39 @@ DemoApp.Jitsi = Jitsi.Base.extend({
   _handleTerminated: function(callItem) {
     var callId = callItem.callId;
     if (callId){
+      if ($('#hold-' + callId).val()){
+        $('#hold-' + callId).unbind('click');
+      }
       $('#hangup-call-' + callId).unbind('submit');
       $('#hang-up-' + callId).html('');
       if ($('#pick-up-' + callId).html()){
         $('#pickup-call-' + callId).unbind('submit');
+        $('#busy-' + callId).unbind('click');
         $('#pick-up-' + callId).html("");
       }
     }
   },
 
+  _handleCallEvents: function (callItem) {
+    if (callItem.data && callItem.data.details){
+      var type = callItem.data.type;
+      var msg = JSON.stringify(callItem.data);
+      msg = "Received Call Event: " + type + " - " + msg;
+      logMessage(msg,false);
+      if (callItem.data.type == 'confirmed'){
+        DemoApp.Jitsi._handleConfirmed(callItem);
+      } else if (callItem.data.type == 'terminated'){
+        DemoApp.Jitsi._handleTerminated(callItem);
+      } else if (callItem.data.type == 'requested'){
+        DemoApp.Jitsi._handleRequested(callItem);
+      } else if (callItem.data.type == 'created'){
+        DemoApp.Jitsi._handleCreated(callItem);
+      }
+    }
+  },
+
   _handleRegisterEvents: function(uaItem) {
-    var username, l;
+    var username, msg;
     if (uaItem) {
       if (uaItem.data.type){
         if (uaItem.data.type == 'registered') {
@@ -242,16 +272,16 @@ DemoApp.Jitsi = Jitsi.Base.extend({
           $('#logged_in_as').html("");
           $('#applet-config').show();
         }
-        l = JSON.stringify(uaItem.data);
-        l = "Recieved Register Event: " + uaItem.data.type + " - " + l;
-        logMessage(l,false);
+        msg = JSON.stringify(uaItem.data);
+        msg = "Received Register Event: " + uaItem.data.type + " - " + msg;
+        logMessage(msg,false);
       }
     }
   },
 
   _handleLoadEvents: function (loadItem) {
-    logMessage(JSON.stringify(loadItem.data),false);
     var msg = "";
+    logMessage(JSON.stringify(loadItem.data),false);
     if (loadItem) {
       if (loadItem.type) {
         if (loadItem.data && loadItem.data.details) {
@@ -259,7 +289,8 @@ DemoApp.Jitsi = Jitsi.Base.extend({
         }
         $("#load-state").text(loadItem.type);
         $("#load-status-message").text(msg);
-        document.getElementById("load-progress").value = loadItem.data.details.progress;
+        document.getElementById("load-progress").value =
+          loadItem.data.details.progress;
       }
     }
 
@@ -272,10 +303,10 @@ DemoApp.Jitsi = Jitsi.Base.extend({
         authUsername = _getFormValue(formID, 'auth-username'),
         passwd  = _getFormValue(formID, 'password');
 
-    var displayName = "test";
+    var displayName = "test", idx;
     if (username && username.length)
     {
-      var idx = username.indexOf('@');
+      idx = username.indexOf('@');
       if (idx != -1){
         displayName = username.substr(0, idx);
       }
@@ -291,14 +322,10 @@ DemoApp.Jitsi = Jitsi.Base.extend({
 
   createCall: function (formID) {
     var to = _getFormValue(formID, 'to');
-    return this.applet.Call.create(to, 'test-1-2-3');
+    return this.applet.Call.create(to, 'call-setup-1-2-3');
   }
 
 });
-
-var onerror = function (e) {
-  return false;
-};
 
 $(document).ready(function() {
   var parsedHash = function(hash) {

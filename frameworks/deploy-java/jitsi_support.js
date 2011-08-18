@@ -38,15 +38,13 @@
 
     var browserSupported = function() {
       var ua = $.browser;
-      var version = -1;
       var browserSupported = false;
       if (ua.mozilla){
-        /** FireFox 4.x **/
-        browserSupported = (ua.version.slice(0,1) == "2");
+        /** FireFox 4.x+ **/
+        browserSupported = (ua.version.slice(0,1) >= 2);
       } else if (ua.msie) {
-        /** MSIE 8,9 **/
-        version = parseInt(ua.version, 10);
-        browserSupported = version > 7;
+        /** MSIE 8+ **/
+        browserSupported = (ua.version >= 8);
       } else if (ua.safari) {
         /** Chrome **/
         var chrome  = /chrome/.test(navigator.userAgent.toLowerCase());

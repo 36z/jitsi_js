@@ -351,4 +351,16 @@ $(document).ready(function() {
     var codebase = $('#applet-codebase').val();
     loadApplet(codebase);
   });
+
+  if ($.browser && $.browser.jitsi){
+    var supported = $.browser.jitsi;
+    $("#jitsi-support-os").html("OS Supported: " + supported.osSupported);
+    $("#jitsi-support-browser").html("Browser Supported: " +
+                                     supported.browserSupported);
+    $("#jitsi-support-java").html("Java Supported: " + supported.java);
+    $("#jitsi-requires-update").html("Java Requires Update: " +
+                                     supported.requiresUpdate);
+    $("#jitsi-requires-install").html("Java Requires Install: " +
+                                      supported.requiresInstall);
+  }
 });

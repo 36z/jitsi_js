@@ -287,10 +287,16 @@ DemoApp.Jitsi = Jitsi.Base.extend({
         if (loadItem.data && loadItem.data.details) {
           msg = loadItem.data.details.message;
         }
-        $("#load-state").text(loadItem.type);
-        $("#load-status-message").text(msg);
-        document.getElementById("load-progress").value =
-          loadItem.data.details.progress;
+        $("#download-status-message").text("");
+        if (loadItem.type != 'download'){
+          $("#load-state").text(loadItem.type);
+          $("#load-status-message").text(msg);
+          document.getElementById("load-progress").value =
+            loadItem.data.details.progress;
+        } else {
+          msg = msg + " " + loadItem.data.details.url;
+          $("#download-status-message").text(msg);
+        }
       }
     }
 

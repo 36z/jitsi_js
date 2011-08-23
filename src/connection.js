@@ -268,11 +268,17 @@ Jitsi.Service.Call = Jitsi.Base.extend(
   /**
    * DTMF tones
    */
-  sendTone: function(key) {
+  sendTone: function(callId, key) {
+    var params = [];
     if(key){
       key = key.toString().charAt(0);
       if(/[0-9]|\*|\#/.test(key)){
-        return this.connection.sendEvent(this.api.SEND_TONE, [key]);
+        if (callId){
+          params.push(callId);
+        }
+        params.push(key);
+        console.log("params: " + params);
+        return this.connection.sendEvent(this.api.SEND_TONE, params);
       }
     }
     Jitsi.error('Invalid parameter key for sendTone');
@@ -384,7 +390,7 @@ Jitsi.Service.Call.Item = Jitsi.Base.extend({
     this.service.answer(this.callId);
   },
   sendTone: function(key){
-    this.service.sendTone(key);
+    this.service.sendTone(this.callId, key);
   },
   mute: function(mute){
     this.service.mute(this.callId, mute);

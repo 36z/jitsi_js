@@ -83,3 +83,17 @@ input {
  margin-top: 5px;
  margin-bottom: 5px;
 }
+
+span.key {
+  color:#050;
+  font-size: 16px;
+  font: bold 84% 'trebuchet ms',helvetica,sans-serif;
+  background-color:#fed;
+  border:1px solid;
+  border-color: #696 #363 #363 #696;
+  padding-right:5px;
+  padding-left:5px;
+  margin-right:2px;
+  margin-left:2px;
+  cursor: pointer;
+}

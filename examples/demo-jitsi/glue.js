@@ -49,10 +49,24 @@ function _generateHangupTemplate(id){
       "<h4>Hangup Call (callId " + id + ")</h4>" +
       "<div>" +
         "<form id=\"hangup-call-" + id + "\" action=\"#\">" +
-          "<table>" +
+          "<table cellspacing='5' cellpadding='10' border='0'>" +
             "<tr>" +
-              "<td><input type=\"button\" id=\"hold-" + id+ "\" value=\"hold\"/></td>" +
-              "<td><input type=\"submit\" value=\"hangup\"/></td>" +
+              "<td>" +
+                "<span class=\"key\" id=\"key-" + id + "-1\">1</span>" +
+                "<span class=\"key\" id=\"key-" + id + "-2\">2</span>" +
+                "<span class=\"key\" id=\"key-" + id + "-3\">3</span>" +
+                "<span class=\"key\" id=\"key-" + id + "-4\">4</span>" +
+                "<span class=\"key\" id=\"key-" + id + "-5\">5</span>" +
+                "<span class=\"key\" id=\"key-" + id + "-6\">6</span>" +
+                "<span class=\"key\" id=\"key-" + id + "-7\">7</span>" +
+                "<span class=\"key\" id=\"key-" + id + "-8\">8</span>" +
+                "<span class=\"key\" id=\"key-" + id + "-9\">9</span>" +
+                "<span class=\"key\" id=\"key-" + id + "-0\">0</span>" +
+              "</td>" +
+            "</tr>" +
+            "<tr>" +
+              "<td><input type=\"button\" id=\"hold-" + id+ "\" value=\"hold\"/>" +
+              "<input type=\"submit\" value=\"hangup\"/></td>" +
             "</tr>" +
           "</table>" +
         "</form>" +
@@ -116,6 +130,7 @@ function loadApplet(codebase) {
     logMessage('sendEvent: create', true);
     DemoApp.Jitsi.createCall(this.id);
   });
+
 }
 
 DemoApp.Jitsi = Jitsi.Base.extend({
@@ -171,6 +186,20 @@ DemoApp.Jitsi = Jitsi.Base.extend({
           e.data.item.hangup();
         });
       }(callItem));
+
+      /** bind dtmf **/
+      (function(item) {
+        $('span.key').bind('click', {item:item}, function (e) {
+          e.preventDefault();
+          var props = this.id.split('-');
+          if (props.length == 3){
+            logMessage('sendEvent: sendTone', true);
+            key = props[2];
+            e.data.item.sendTone(key);
+          }
+        });
+      }(callItem));
+
     }
   },
 
@@ -288,6 +317,7 @@ DemoApp.Jitsi = Jitsi.Base.extend({
           msg = loadItem.data.details.message;
         }
         $("#download-status-message").text("");
+        /** if we're downloading bundles **/
         if (loadItem.type != 'download'){
           $("#load-state").text(loadItem.type);
           $("#load-status-message").text(msg);
@@ -300,8 +330,10 @@ DemoApp.Jitsi = Jitsi.Base.extend({
       }
     }
 
-    if (loadItem.type == "loaded")
-      $("#logged_out_pane").show();
+    if (loadItem.type == "loaded"){
+      DemoApp.Jitsi.register('register');
+      //$("#logged_out_pane").show();
+    }
   },
 
   register: function (formID) {

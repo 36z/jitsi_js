@@ -24,7 +24,9 @@ input[type='password'] {
 input[name=jid] {
   width: 410px;
 }
-
+input[name=codebase] {
+  width: 410px;
+}
 input {
   margin: 2px 0;
 }

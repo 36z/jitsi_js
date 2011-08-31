@@ -31,7 +31,11 @@ Jitsi.Applet = Jitsi.Base.extend(
   codebase: function(location) {
     var host = location.host;
     var proto = location.protocol;
-    return [proto,host].join("//");
+    var cb = (Jitsi.Archive &&
+              Jitsi.Archive.codebase &&
+              Jitsi.Archive.codebase.length > 0) ?
+      Jitsi.Archive.codebase : [proto,host].join("//");
+    return cb;
   }(window.location),
 
   applet: null,
@@ -136,13 +140,10 @@ Jitsi.Applet = Jitsi.Base.extend(
         '    codebase="' + codebase + '"' +
         '    code="com.onsip.felix.AppletLauncher.class" ' +
         '    archive="GraphicalUAApp.jar" name="' + id + '"' +
-        '    id="' + id + '" width="5" height="5"> ' +
-        '  <param name=callback value="receiveJitsiEvent" />' +
-        '  <param name="mayscript" value="mayscript" />' +
-        '  <param name="type" value="application/x-java-applet" />' +
-        '  <param name="scriptable" value="true" />' +
-        '  <param name="classloader_cache" value="false" />' +
-        '  <param name="codebase_lookup" value="false" />' +
+        '    id="' + id + '" width="5" height="5" ' +
+        '    type="application/x-java-applet" ' +
+        '    codebase_lookup="false" ' +
+        '    callback="' + eventSink + '" ' +
         '</embed>';
     }
 

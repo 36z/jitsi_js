@@ -1,4 +1,4 @@
-SRC = core.js base.js util.js connection.js applet.js
+SRC = core.js base.js util.js connection.js archive.js applet.js
 
 DOCDIR = ../docs
 

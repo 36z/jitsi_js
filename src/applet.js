@@ -88,7 +88,7 @@ Jitsi.Applet = Jitsi.Base.extend(
    * Fires the event into the applet
    */
   sendEvent: function(fn, args) {
-    console.log('sendEvent: ' + arguments);
+    Jitsi.log('sendEvent: ' + arguments);
     this.applet.api(fn, args);
   },
 
@@ -117,7 +117,8 @@ Jitsi.Applet = Jitsi.Base.extend(
         '  width="5" height="5" name="' + id + '" id="' + id + '"' +
         '  codebase="http://java.sun.com/update/1.6.0/jinstall-6u25-windows-i586.cab/#Version=1,6,0,25"> ' +
         '<param name=code value=com.onsip.felix.AppletLauncher.class>' +
-        '<param name=archive value="GraphicalUAApp.jar">' +
+        '<param name="archive" value="GraphicalUAApp.jar">' +
+        '<param name="codebase" value="' + codebase + '">' +
         '<param name=name value="' + id + '">' +
         '<param name="MAYSCRIPT" value="true">' +
         '<param name="type" VALUE="application/x-java-applet">' +

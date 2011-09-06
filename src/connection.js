@@ -277,7 +277,7 @@ Jitsi.Service.Call = Jitsi.Base.extend(
           params.push(callId);
         }
         params.push(key);
-        console.log("params: " + params);
+        Jitsi.log("params: " + params);
         return this.connection.sendEvent(this.api.SEND_TONE, params);
       }
     }

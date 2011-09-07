@@ -65,6 +65,8 @@ Jitsi.Service.Api = {
     CREATE: "CALL_CREATE",
     TERMINATE: "CALL_TERMINATE",
     REQUESTED: "CALL_REQUESTED",
+    INVITE: "INVITE",
+    TRANSFER: "TRANSFER_CALL",
     SEND_TONE: "SEND_TONE",
     MUTE: "MUTE",
     HOLD: "HOLD"
@@ -284,8 +286,31 @@ Jitsi.Service.Call = Jitsi.Base.extend(
     Jitsi.error('Invalid parameter key for sendTone');
   },
 
-  transfer: function() {
-    Jitsi.error("Future Implementation");
+  transfer: function(callId, peerId, targetUri) {
+    var params = [];
+    if (callId) {
+      params.push(callId);
+      if (peerId) {
+        params.push(peerId);
+        if (targetUri) {
+          params.push(targetUri);
+          return this.connection.sendEvent(this.api.TRANSFER, params);
+        }
+      }
+    }
+    Jitsi.error('Invalid parameter set in transfer');
+  },
+
+  inviteCalleeToCall: function(callId, targetUri) {
+    var params = [];
+    if (callId) {
+      params.push(callId);
+      if (targetUri) {
+        params.push(targetUri);
+        return this.connection.sendEvent(this.api.INVITE, params);
+      }
+    }
+    Jitsi.error('Invalid parameter set in inviteCalleeToCall');
   }
 
 });
@@ -394,6 +419,12 @@ Jitsi.Service.Call.Item = Jitsi.Base.extend({
   },
   mute: function(mute){
     this.service.mute(this.callId, mute);
+  },
+  transfer: function(peerId, targetUri){
+    this.service.transfer(this.callId, peerId, targetUri);
+  },
+  inviteCalleeToCall: function(targetUri){
+    this.service.inviteCalleeToCall(this.callId, targetUri);
   }
 });
 

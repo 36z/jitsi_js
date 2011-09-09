@@ -66,7 +66,8 @@ function _generateHangupTemplate(id){
             "</tr>" +
             "<tr>" +
               "<td><input type=\"button\" id=\"hold-" + id+ "\" value=\"hold\"/>" +
-              "<input type=\"submit\" value=\"hangup\"/></td>" +
+              "<input type=\"submit\" value=\"hangup\"/>" +
+              "</td>" +
             "</tr>" +
           "</table>" +
         "</form>" +
@@ -350,8 +351,18 @@ DemoApp.Jitsi = Jitsi.Base.extend({
       }
     }
 
-    return this.applet.UserAgent.register(username, displayName,
-                                         authUsername, passwd);
+    var principal = {
+      userId: username,
+      displayName: displayName,
+      authUsername: authUsername,
+      password: passwd
+    };
+    var ua = this.applet.UserAgent.extend({credentials:principal});
+    /* alternatively, use */
+
+    //return this.applet.UserAgent.register(username, displayName,
+      //                                     authUsername, passwd);
+
   },
 
   unregister: function(formID) {

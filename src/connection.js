@@ -82,12 +82,27 @@ Jitsi.Service.UserAgent = Jitsi.Base.extend (
 
   api: Jitsi.Service.Api.Register,
 
+  credentials: null,
+
+  isRegistered: false,
+
   init: Jitsi.Function.around(
     function($super) {
       if (this.connection){
         this.connection.registerEventHandler("registration",
                                              this._handleRegisterEvents,
                                              this);
+        if (this.credentials){
+          var c = this.credentials;
+          if (c.userId && c.authUsername &&
+              c.password && c.displayName){
+
+            this.register(c.userId, c.displayName,
+                          c.authUsername, c.password,
+                          c.serverAddress, c.proxyAddress,
+                          c.proxyPort);
+          }
+        }
       }
 
       if (Jitsi.isFunction($super)) {
@@ -109,6 +124,7 @@ Jitsi.Service.UserAgent = Jitsi.Base.extend (
     if (jevt && jevt.type) {
       type = jevt.type;
       if (type.constructor == String){
+        this.isRegistered = (type == 'registered');
         this.fireHandler('onRegisterEvent', this.makeUserAgentItem(jevt));
         return this;
       }
@@ -124,17 +140,33 @@ Jitsi.Service.UserAgent = Jitsi.Base.extend (
     return uaItem;
   },
 
-  /**
-   * example:
-   *   this.connection.sendEvent('register',username, pwd, ...);
-   */
-  register: function(username, displayName, authUsername, passwd) {
-    var args = [username, displayName, authUsername, passwd];
-    return this.connection.sendEvent(this.api.REGISTER, args);
+  register: function(username, displayName, authUsername, passwd,
+      serverAddress, proxyAddress, proxyPort) {
+    var params = [username, displayName, authUsername, passwd];
+    if (serverAddress) {
+      params.push(serverAddress);
+      if (proxyAddress){
+        params.push(proxyAddress);
+        if (proxyPort){
+          params.push(proxyPort);
+        }
+      }
+    }
+    return this.connection.sendEvent(this.api.REGISTER, params);
   },
 
   unregister: function() {
     return this.connection.sendEvent(this.api.UNREGISTER, []);
+  },
+
+  createCall: function(to, setupCallId) {
+    if (to){
+      if (!this.isRegistered){
+        Jitsi.warn('UserAgent is not registered');
+      }
+      setupCallId = setupCallId || '';
+      return this.connection.Call.create(to,setupCallId);
+    }
   }
 
 });
@@ -558,10 +590,13 @@ Jitsi.Connection = Jitsi.Base.extend({
    * @return {Mixed} callbackId
    */
   registerEventHandler: function(packageName, callback, target) {
-    return this._eventHandlersForPackage(packageName).push(
-      function _anon_jitsiConnectionRegisteredHandler() {
-        callback.apply(target,arguments);
-      }) - 1;
+    if (this._eventHandlersForPackage(packageName).length == 0) {
+      return this._eventHandlersForPackage(packageName).push(
+        function _anon_jitsiConnectionRegisteredHandler() {
+          callback.apply(target,arguments);
+        }) - 1;
+    }
+    return -1;
   },
 
   /**

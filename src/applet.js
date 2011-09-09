@@ -142,6 +142,9 @@ Jitsi.Applet = Jitsi.Base.extend(
         '    code="com.onsip.felix.AppletLauncher.class" ' +
         '    archive="GraphicalUAApp.jar" name="' + id + '"' +
         '    id="' + id + '" width="5" height="5" ' +
+        '    server_address="" ' +
+        '    proxy_address="" ' +
+        '    proxy_port="" ' +
         '    type="application/x-java-applet" ' +
         '    codebase_lookup="false" ' +
         '    callback="' + eventSink + '" ' +

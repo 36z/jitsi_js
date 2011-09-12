@@ -136,6 +136,8 @@ function loadApplet(codebase) {
 
 DemoApp.Jitsi = Jitsi.Base.extend({
 
+  userAgent: null,
+
   _handleHold: function(callItem, hold) {
     var callId = callItem.callId;
     if (!callId || (callId.toString().length === 0)){
@@ -357,21 +359,17 @@ DemoApp.Jitsi = Jitsi.Base.extend({
       authUsername: authUsername,
       password: passwd
     };
-    var ua = this.applet.UserAgent.extend({credentials:principal});
-    /* alternatively, use */
 
-    //return this.applet.UserAgent.register(username, displayName,
-      //                                     authUsername, passwd);
-
+    this.userAgent = this.applet.UserAgent.extend({credentials:principal});
   },
 
   unregister: function(formID) {
-    this.applet.UserAgent.unregister();
+    this.userAgent.unregister();
   },
 
   createCall: function (formID) {
     var to = _getFormValue(formID, 'to');
-    return this.applet.Call.create(to, 'call-setup-1-2-3');
+    return this.userAgent.createCall(to, 'call-setup-1-2-3');
   }
 
 });

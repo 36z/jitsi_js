@@ -86,6 +86,8 @@ Jitsi.Service.UserAgent = Jitsi.Base.extend (
 
   isRegistered: false,
 
+  userId: null,
+
   init: Jitsi.Function.around(
     function($super) {
       if (this.connection){
@@ -140,9 +142,11 @@ Jitsi.Service.UserAgent = Jitsi.Base.extend (
     return uaItem;
   },
 
-  register: function(username, displayName, authUsername, passwd,
-      serverAddress, proxyAddress, proxyPort) {
+  register: function(username, displayName,
+                     authUsername, passwd,
+                     serverAddress, proxyAddress,proxyPort) {
     var params = [username, displayName, authUsername, passwd];
+    this.userId = username;
     if (serverAddress) {
       params.push(serverAddress);
       if (proxyAddress){
@@ -156,7 +160,10 @@ Jitsi.Service.UserAgent = Jitsi.Base.extend (
   },
 
   unregister: function() {
-    return this.connection.sendEvent(this.api.UNREGISTER, []);
+    if(this.userId){
+      return this.connection.sendEvent(this.api.UNREGISTER, [this.userId]);
+    }
+    Jitsi.error("user id was not specified");
   },
 
   createCall: function(to, setupCallId) {
@@ -164,8 +171,11 @@ Jitsi.Service.UserAgent = Jitsi.Base.extend (
       if (!this.isRegistered){
         Jitsi.warn('UserAgent is not registered');
       }
-      setupCallId = setupCallId || '';
-      return this.connection.Call.create(to,setupCallId);
+      if (this.userId){
+        setupCallId = setupCallId || '';
+        return this.connection.Call.create(this.userId, to, setupCallId);
+      }
+      Jitsi.error("user id was not defined");
     }
   }
 
@@ -234,10 +244,10 @@ Jitsi.Service.Call = Jitsi.Base.extend(
    * @param {String} setupCallId binds the create call request
    *                             to call publish events
    */
-  create: function(to, setupCallId) {
-    if (to){
+  create: function(userId, to, setupCallId) {
+    if (userId && to){
       setupCallId = setupCallId || '';
-      return this.connection.sendEvent(this.api.CREATE, [to, setupCallId]);
+      return this.connection.sendEvent(this.api.CREATE, [userId, to, setupCallId]);
     }
     Jitsi.error("Invalid to SIP address, can't make call");
   },

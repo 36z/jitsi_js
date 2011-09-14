@@ -32,8 +32,10 @@ Jitsi.Service.Call.Item = Jitsi.Base.extend({
     if (!this.peer) return;
 
     this.peer.hold = {
-      local: this.peer.hold && this.peer.hold.indexOf && this.peer.hold.indexOf('local') >= 0,
-      remote: this.peer.hold && this.peer.hold.indexOf && this.peer.hold.indexOf('remote') >= 0
+      local: this.peer.hold &&
+        this.peer.hold.indexOf && this.peer.hold.indexOf('local') >= 0,
+      remote: this.peer.hold &&
+        this.peer.hold.indexOf && this.peer.hold.indexOf('remote') >= 0
     };
     this.peer.mute = (this.peer.mute === "true");
 

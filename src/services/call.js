@@ -1,9 +1,8 @@
-/* global Jitsi */
-
-/** @class
-
-  @extends Jitsi.Base
-*/
+/**
+ * @class
+ *
+ * @extends Jitsi.Base
+ */
 
 Jitsi.Service.Call = Jitsi.Base.extend(
   /** @scope Jitsi.Service.Call */
@@ -30,7 +29,7 @@ Jitsi.Service.Call = Jitsi.Base.extend(
     if (!data) return ret;
     var details = data.details || {};
     var peers = details.peers || [];
-    for (var i=0;i<peers.length;i++) {
+    for (var i=0 ; i<peers.length ; i++) {
       ret.push(Jitsi.Service.Call.Item.extend({
         service: this,
         data: data,
@@ -64,9 +63,12 @@ Jitsi.Service.Call = Jitsi.Base.extend(
   create: function(userId, to, setupCallId) {
     if (userId && to){
       setupCallId = setupCallId || '';
-      return this.connection.sendEvent(this.api.CREATE, [userId, to, setupCallId]);
+      return this.connection.sendEvent(this.api.CREATE,
+                                       [userId, to, setupCallId]);
+    } else {
+      Jitsi.error("Invalid to sip uri, can't make call");
     }
-    Jitsi.error("Invalid to SIP address, can't make call");
+    return false;
   },
 
   /**
@@ -78,8 +80,11 @@ Jitsi.Service.Call = Jitsi.Base.extend(
     var params = [];
     if (callId){
       params.push(callId);
+      return this.connection.sendEvent(this.api.REQUESTED, params);
+    } else {
+      Jitsi.error("answer is missing a callId");
     }
-    return this.connection.sendEvent(this.api.REQUESTED, params);
+    return false;
   },
 
   /**
@@ -95,16 +100,23 @@ Jitsi.Service.Call = Jitsi.Base.extend(
       if (peerId) {
         params.push(peerId);
       }
+      return this.connection.sendEvent(this.api.TERMINATE, params);
+    } else {
+      Jitsi.error("hangup is missing a callId");
     }
-    return this.connection.sendEvent(this.api.TERMINATE, params);
+    return false;
   },
 
   mute: function(mute, callId) {
     var params = [];
     if (callId) {
       params.push(callId);
+      params.push(!!mute);
+      return this.connection.sendEvent(this.api.MUTE, params);
+    } else {
+      Jitsi.error("mute is missing a callId");
     }
-    params.push(!!mute);
+    return false;
   },
 
   /**
@@ -121,9 +133,12 @@ Jitsi.Service.Call = Jitsi.Base.extend(
       if (peerId) {
         params.push(peerId);
       }
+      params.push(!!hold);
+      return this.connection.sendEvent(this.api.HOLD, params);
+    } else {
+      Jitsi.error("hold is missing a callId");
     }
-    params.push(!!hold);
-    return this.connection.sendEvent(this.api.HOLD, params);
+    return false;
   },
 
   /**
@@ -131,18 +146,23 @@ Jitsi.Service.Call = Jitsi.Base.extend(
    */
   sendTone: function(callId, key) {
     var params = [];
-    if(key){
-      key = key.toString().charAt(0);
-      if(/[0-9]|\*|\#/.test(key)){
-        if (callId){
-          params.push(callId);
+    if (callId){
+      if(key){
+        key = key.toString().charAt(0);
+        if(/[0-9]|\*|\#/.test(key)){
+          if (callId){
+            params.push(callId);
+          }
+          params.push(key);
+          return this.connection.sendEvent(this.api.SEND_TONE, params);
         }
-        params.push(key);
-        Jitsi.log("params: " + params);
-        return this.connection.sendEvent(this.api.SEND_TONE, params);
+      } else {
+        Jitsi.error('Invalid parameter key in sendTone');
       }
+    } else {
+      Jitsi.error('sendTone is missing a callId');
     }
-    Jitsi.error('Invalid parameter key for sendTone');
+    return false;
   },
 
   transfer: function(callId, peerId, targetUri) {
@@ -154,10 +174,16 @@ Jitsi.Service.Call = Jitsi.Base.extend(
         if (targetUri) {
           params.push(targetUri);
           return this.connection.sendEvent(this.api.TRANSFER, params);
+        } else {
+          Jitsi.error('transfer is missing a targetUri');
         }
+      } else {
+        Jitsi.error('transfer is missing a peerId');
       }
+    } else {
+      Jitsi.error('transfer is missing a callId');
     }
-    Jitsi.error('Invalid parameter set in transfer');
+    return false;
   },
 
   inviteCalleeToCall: function(callId, targetUri) {
@@ -167,9 +193,13 @@ Jitsi.Service.Call = Jitsi.Base.extend(
       if (targetUri) {
         params.push(targetUri);
         return this.connection.sendEvent(this.api.INVITE, params);
+      } else {
+        Jitsi.error('inviteCalleeToCall is missing a targetUri');
       }
+    } else {
+      Jitsi.error('inviteCalleeToCall is missing a callId');
     }
-    Jitsi.error('Invalid parameter set in inviteCalleeToCall');
+    return false;
   }
 
 });

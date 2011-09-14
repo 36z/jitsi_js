@@ -1,5 +1,6 @@
 
-/** @class
+/**
+ * @class
  *
  * @extends Jitsi.Base
  */
@@ -72,7 +73,7 @@ Jitsi.Service.UserAgent = Jitsi.Base.extend (
 
   register: function(username, displayName,
                      authUsername, passwd,
-                     serverAddress, proxyAddress,proxyPort) {
+                     serverAddress, proxyAddress, proxyPort) {
     var params = [username, displayName, authUsername, passwd];
     this.userId = username;
     if (serverAddress) {
@@ -91,19 +92,19 @@ Jitsi.Service.UserAgent = Jitsi.Base.extend (
     if(this.userId){
       return this.connection.sendEvent(this.api.UNREGISTER, [this.userId]);
     }
-    Jitsi.error("user id was not specified");
+    Jitsi.error("userId was not specified");
   },
 
   createCall: function(to, setupCallId) {
     if (to){
       if (!this.isRegistered){
-        Jitsi.warn('UserAgent is not registered');
+        Jitsi.warn('User agent is not registered');
       }
       if (this.userId){
         setupCallId = setupCallId || '';
         return this.connection.Call.create(this.userId, to, setupCallId);
       }
-      Jitsi.error("user id was not defined");
+      Jitsi.error("userId was not defined");
     }
   }
 

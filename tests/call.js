@@ -14,7 +14,7 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
   setUp: function() {
     this.data = {
       "package":"call",
-      "type":"outgoing-call",
+      "type":"confirmed",
       "callId":"12345",
       "details":
       {
@@ -22,7 +22,7 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
         {
           "state":"initializing",
           "id":"13107594568151244482013",
-          "peer-count":"1"
+          "count":"1"
         },
         "peers":
         [
@@ -31,7 +31,7 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
             "duration":"0",
             "address":"17329282288@junctionnetworks.com",
             "state":"Initiating Call",
-            "is-mute":"false",
+            "mute":"false",
             "codec":""
           }
         ]
@@ -56,31 +56,101 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
   testCreate: function() {
     var Assert = YAHOO.util.Assert;
     var service = this.conn.Call;
-    Assert.isTrue(service.create('sip'));
+    var userId = 'test@example.onsip.com';
+    var to = '7777';
+    var setupId = 'id-1-2-3';
+    Assert.isTrue(service.create(userId,to,setupId));
   },
 
   testHangup: function() {
     var Assert = YAHOO.util.Assert;
     var service = this.conn.Call;
-    Assert.isTrue(service.hangup());
+    var callId = '234234';
+    Assert.isTrue(service.hangup(callId));
   },
 
   testHold: function() {
     var Assert = YAHOO.util.Assert;
     var service = this.conn.Call;
-    Assert.isTrue(service.hold(true));
+    var callId = '293929392';
+    var hold = true;
+    Assert.isTrue(service.hold(hold,callId));
   },
 
   testSendTone: function() {
     var Assert = YAHOO.util.Assert;
     var service = this.conn.Call;
-    Assert.isTrue(service.sendTone('*'));
+    var callId = '2923992949394';
+    var key = '0';
+    Assert.isTrue(service.sendTone(callId, key));
+  },
+
+  testSendToneMissingCallId: function() {
+    var Assert = YAHOO.util.Assert;
+    var service = this.conn.Call;
+    var key = '0';
+    Assert.isFalse(service.sendTone(key));
+  },
+
+  testSendToneMissingKey: function() {
+    var Assert = YAHOO.util.Assert;
+    var service = this.conn.Call;
+    var callId = 'b234234324';
+    Assert.isFalse(service.sendTone('*'));
   },
 
   testAnswer: function() {
     var Assert = YAHOO.util.Assert;
     var service = this.conn.Call;
-    Assert.isTrue(service.answer());
+    var callId = '234234';
+    Assert.isTrue(service.answer(callId));
+  },
+
+  testMute: function() {
+    var Assert = YAHOO.util.Assert;
+    var service = this.conn.Call;
+    var callId = '1234';
+    var mute = false;
+    Assert.isTrue(service.mute(mute,callId));
+  },
+
+  testMuteMissingCallId: function() {
+    var Assert = YAHOO.util.Assert;
+    var service = this.conn.Call;
+    var mute = false;
+    Assert.isFalse(service.mute(mute));
+  },
+
+  testTransfer: function() {
+    var Assert = YAHOO.util.Assert;
+    var service = this.conn.Call;
+    var callId = '1234';
+    var peerId = '5678';
+    var targetUri = '7777';
+    Assert.isTrue(service.transfer(callId, peerId, targetUri));
+  },
+
+  testTransferMissingParameter: function() {
+    var Assert = YAHOO.util.Assert;
+    var service = this.conn.Call;
+    var peerId = '5678';
+    var targetUri = '7777';
+    Assert.isFalse(service.transfer(peerId, targetUri));
+  },
+
+  testInviteCalleeToCall: function() {
+    var Assert = YAHOO.util.Assert;
+    var service = this.conn.Call;
+    var callId = '1234';
+    var targetUri = '7777';
+    Assert.isTrue(service.inviteCalleeToCall(callId, targetUri));
+  },
+
+  testMissingTargetUri: function() {
+    var Assert = YAHOO.util.Assert;
+    var service = this.conn.Call;
+    var callId = '1234';
+    Assert.isFalse(service.inviteCalleeToCall(callId));
   },
 
   /**
@@ -133,6 +203,10 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
       Assert.isFunction(item.hangup);
       Assert.isFunction(item.hold);
       Assert.isFunction(item.sendTone);
+      Assert.isFunction(item.mute);
+      Assert.isFunction(item.answer);
+      Assert.isFunction(item.transfer);
+      Assert.isFunction(item.inviteCalleeToCall);
     };
 
     this.conn.Call.registerHandler('onCallEvent', handler);

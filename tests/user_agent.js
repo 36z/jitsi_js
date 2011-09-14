@@ -6,9 +6,8 @@
  * More specifically, we're testing Register
  *
  */
-YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
-{
-  name: 'Jitsi Service Register Tests',
+YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase({
+  name: 'Jitsi Service UserAgent Tests',
 
   setUp: function() {
     this.data = {
@@ -18,6 +17,13 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
       {
         "new-state":"Registered"
       }
+    };
+
+    this.principal = {
+      userId: 'test@example.onsip.com',
+      displayName: 'test',
+      authUsername: 'test_test',
+      password: 'test_passwd'
     };
 
     this.applet = Jitsi.Test.MockApplet.extend();
@@ -32,7 +38,13 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
   testCreateRegisterService: function() {
     var Assert = YAHOO.util.Assert;
     Assert.isObject(this.conn.UserAgent,
-                   "Jitsi.Service.Register was not created, can't do much");
+                   "Jitsi.Service.UserAgent was not created, can't do much");
+  },
+
+  testRegisterWithCredentials: function() {
+    var Assert = YAHOO.util.Assert;
+    var service = this.conn.UserAgent.extend({credentials:this.principal});
+    Assert.areEqual(service.userId, this.principal.userId);
   },
 
   testRegister: function() {
@@ -43,8 +55,16 @@ YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase(
 
   testUnregister: function() {
     var Assert = YAHOO.util.Assert;
-    var service = this.conn.UserAgent;
+    var service = this.conn.UserAgent.extend({credentials:this.principal});
     Assert.isTrue(service.unregister());
+  },
+
+  testCreateCall: function() {
+    var Assert = YAHOO.util.Assert;
+    var service = this.conn.UserAgent.extend({credentials:this.principal});
+    var to = '7777';
+    var setupId = '12313213234325';
+    Assert.isTrue(service.createCall(to, setupId));
   },
 
   /**

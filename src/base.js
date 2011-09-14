@@ -128,3 +128,7 @@ Jitsi.Error = function (message) {
 Jitsi.Error.prototype = new Error();
 Jitsi.Error.prototype.name = 'Jitsi.Error';
 
+Jitsi.Service = {};
+
+Jitsi.Mixin = {};
+

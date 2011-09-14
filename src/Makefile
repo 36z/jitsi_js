@@ -1,4 +1,7 @@
-SRC = core.js base.js util.js connection.js archive.js applet.js
+SRC = core.js base.js util.js archive.js applet.js \
+	mixins/registration_handler.js \
+        services/*.js items/*.js \
+	connection.js
 
 DOCDIR = ../docs
 

@@ -1,4 +1,10 @@
+
+/** @class
+ *
+ *   @extends Jitsi.Base
+ */
 Jitsi.Service.Loader = Jitsi.Base.extend (
+  /** @scope Jitsi.Service.Loader */
   Jitsi.Mixin.RegistrationHandler, {
 
   init: Jitsi.Function.around(
@@ -15,29 +21,21 @@ Jitsi.Service.Loader = Jitsi.Base.extend (
     }
   ),
 
-  /**
-   * -- loader callbacks
-   *  load: function() {},
-   *  onLoading: function() {},
-   *  onLoaded: function() {}
-   *
-   */
+  makeLoadItem: function(data) {
+    var item = Jitsi.Service.Loader.Item.extend({
+      service: this,
+      data: data
+    });
+    return item;
+  },
+
   _handleLoadEvents: function(loadEvent) {
-    var jevt = null;
-    var type = null;
     if (loadEvent) {
-      if (loadEvent.constructor == String) {
-        jevt = JSON.parse(loadEvent);
-      } else if (loadEvent.constructor == Object) {
-        jevt = loadEvent;
+      if (loadEvent.type){
+        return this.fireHandler('onLoadEvent', this.makeLoadItem(loadEvent));
       }
     }
-    if (jevt && jevt.type) {
-      type = jevt.type;
-      this.fireHandler('onLoadEvent', jevt);
-      return this;
-    }
-    throw new Jitsi.Error("Could not parse loadEvent");
+    Jitsi.error("Could not parse loadEvent");
   }
-
 });
+

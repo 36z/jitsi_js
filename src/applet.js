@@ -21,8 +21,7 @@ function receiveJitsiEvent(rawEvent) {
 }
 **/
 
-Jitsi.Applet = Jitsi.Base.extend(
-{
+Jitsi.Applet = Jitsi.Base.extend({
   /**
    *  the id of the applet DOM element
    */
@@ -164,3 +163,5 @@ Jitsi.Applet = Jitsi.Base.extend(
     this.applet = document.getElementById(id);
   }
 });
+
+

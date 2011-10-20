@@ -334,8 +334,8 @@ DemoApp.Jitsi = Jitsi.Base.extend({
     }
 
     if (loadItem.type == "loaded"){
-      DemoApp.Jitsi.register('register');
-      //$("#logged_out_pane").show();
+      //DemoApp.Jitsi.register('register');
+      $("#logged_out_pane").show();
     }
   },
 

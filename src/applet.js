@@ -123,6 +123,7 @@ Jitsi.Applet = Jitsi.Base.extend({
         '<param name="type" VALUE="application/x-java-applet">' +
         '<param name="scriptable" VALUE="true">' +
         '<param name="callback" value="receiveJitsiEvent" />' +
+        '<param name="java_arguments" value="-Djnlp.packEnabled=true" />' +
         '<comment>' +
         '  <embed type="application/x-java-applet;jpi-version=1.6.0_24" mayscript ' +
         '    code=com.onsip.felix.AppletLauncher.class archive="GraphicalUAApp.jar" ' +
@@ -144,9 +145,9 @@ Jitsi.Applet = Jitsi.Base.extend({
         '    server_address="" ' +
         '    proxy_address="" ' +
         '    proxy_port="" ' +
-        '    type="application/x-java-applet" ' +
+        '    java_arguments="-Djnlp.packEnabled=true" ' +
         '    codebase_lookup="false" ' +
-        '    callback="' + eventSink + '" ' +
+        '    callback="' + eventSink + '" >' +
         '</embed>';
     }
 

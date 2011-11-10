@@ -154,7 +154,7 @@ Jitsi.Applet = Jitsi.Base.extend({
     var body = document.body;
     var div = document.createElement('div');
     div.id = 'jitsi-applet';
-    div.innerHTML = embed_applet;
+    div.innerHTML = '<span style="position:absolute; top:-200px; left:-200px;">' + embed_applet + '</span>';
     if (document.body.firstChild){
       body.insertBefore(div, document.body.firstChild);
     } else {

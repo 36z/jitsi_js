@@ -78,12 +78,12 @@ Jitsi.Service.UserAgent = Jitsi.Base.extend (
     this.userId = username;
     if (serverAddress) {
       params.push(serverAddress);
-      if (proxyAddress){
+    }
+    if (proxyAddress){
         params.push(proxyAddress);
-        if (proxyPort){
-          params.push(proxyPort);
-        }
-      }
+    }
+    if (proxyPort){
+      params.push(proxyPort);
     }
     return this.connection.sendEvent(this.api.REGISTER, params);
   },

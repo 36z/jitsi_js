@@ -38,15 +38,6 @@ Jitsi.Service.Call.Item = Jitsi.Base.extend({
         this.peer.hold.indexOf && this.peer.hold.indexOf('remote') >= 0
     };
     this.peer.mute = (this.peer.mute === "true");
-
-    // replace duration (unix timestamp as String) with startTime as Date object
-    // TODO: jitsi events need to be more consistent w/ duration field
-    // (among others) - e.g. terminated events
-    if (parseInt(this.peer.duration)) {
-      this.peer.startTime = new Date();
-      this.peer.startTime.setTime(parseInt(this.peer.duration));
-      delete this.peer.duration;
-    }
   },
 
   /**

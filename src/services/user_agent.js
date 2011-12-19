@@ -88,9 +88,9 @@ Jitsi.Service.UserAgent = Jitsi.Base.extend (
     return this.connection.sendEvent(this.api.REGISTER, params);
   },
 
-  unregister: function() {
-    if(this.userId){
-      return this.connection.sendEvent(this.api.UNREGISTER, [this.userId]);
+  unregister: function(id) {
+    if(id){
+      return this.connection.sendEvent(this.api.UNREGISTER, [id]);
     }
     Jitsi.error("userId was not specified");
   },

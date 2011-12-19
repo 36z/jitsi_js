@@ -22,6 +22,9 @@ function receiveJitsiEvent(rawEvent) {
 **/
 
 Jitsi.Applet = Jitsi.Base.extend({
+
+  ENABLE_RECOVERY_MODE: true,
+
   /**
    *  the id of the applet DOM element
    */
@@ -38,6 +41,8 @@ Jitsi.Applet = Jitsi.Base.extend({
   }(window.location),
 
   applet: null,
+
+  recoveryStore: null,
 
   globalEventReceiveFunctionName: 'receiveJitsiEvent',
 
@@ -87,8 +92,16 @@ Jitsi.Applet = Jitsi.Base.extend({
    * Fires the event into the applet
    */
   sendEvent: function(fn, args) {
-    Jitsi.log('sendEvent: ' + arguments);
-    this.applet.api(fn, args);
+    try {
+      this.applet.api(fn, args);
+    } catch (e) {
+      Jitsi.error('Jitsi.Applet.sendEvent received error handling event: ' +
+                  'the applet likely crashed');
+      Jitsi.log("arguments:",arguments);
+      Jitsi.log("error:",e);
+      if (this.ENABLE_RECOVERY_MODE)
+        this._handleFailover(fn, args);
+    }
   },
 
   registerHandler: function(event, handler) {
@@ -102,12 +115,60 @@ Jitsi.Applet = Jitsi.Base.extend({
     }
   },
 
+  _createFauxCallResponse: function(fn,args) {
+    if (args.length != 3) return '{}';
+    return '{"package":"call", "callSetupId":"' + args[2] + '", ' +
+      '"callId":"' + args[2] + '", "type":"terminated",' +
+      '"details":{' +
+          '"call":{"id":"' + args[2] + '","state":"Ended"},' +
+          '"peers":[{"state":"recover","fn":"' + fn + '","args":"' + args + '"}]}' +
+      '}';
+  },
+
+  _setTheRecoveryStatePointAndRelaunch: function(fn,args) {
+      this.recoveryStore.template.failover = 'true';
+      this.recoveryStore.event = {
+        fn: fn,
+        args: args
+      };
+      this.load(this.recoveryStore.template);
+  },
+
+  /**
+   * Managing failover in this context means that
+   * our applet no longer exists, but the UI looks to
+   * be perfectly functional. When the end user tries
+   * to interact with the web phone by making a call.
+   * In this use case, live connect fails with a JS
+   * exception. We catch the exception and create an
+   * object that stores details about the call create
+   * action that was taken. We then tell our frontend
+   * that we're going into recovery mode as we try
+   * to relaunch the applet. Once the applet comes back
+   * to life it re-registers our existing user agents
+   * and notifies the client that it launched, and
+   * registered from a failure.
+   */
+  _handleFailover: function(fn, args) {
+    if (this.recoveryStore && this.recoveryStore.template){
+      if (fn == Jitsi.Service.Api.Calls.CREATE) {
+        this.receiveEvent(this._createFauxCallResponse(fn, args));
+      }
+      this._setTheRecoveryStatePointAndRelaunch(fn, args);
+    }
+  },
+
   load: function(template) {
     var id = template.appletID,
       codebase = template.codebase,
-      eventSink = template.globalEventReceiveFunctionName;
+      eventSink = template.globalEventReceiveFunctionName,
+      recover = template.failover || '';
 
     var app = navigator.appName, embed_applet;
+    this.recoveryStore = {
+      template : template,
+      event : this.recoveryStore && this.recoveryStore.event
+    };
 
     // TODO: fix browser detection
     if (app == 'Microsoft Internet Explorer') {
@@ -123,6 +184,7 @@ Jitsi.Applet = Jitsi.Base.extend({
         '<param name="type" VALUE="application/x-java-applet">' +
         '<param name="scriptable" VALUE="true">' +
         '<param name="callback" value="receiveJitsiEvent" />' +
+        '<param name="recover" value="' + recover + '" />' +
         '<param name="java_arguments" value="-Djnlp.packEnabled=true" />' +
         '<comment>' +
         '  <embed type="application/x-java-applet;jpi-version=1.6.0_24" mayscript ' +
@@ -145,6 +207,7 @@ Jitsi.Applet = Jitsi.Base.extend({
         '    server_address="" ' +
         '    proxy_address="" ' +
         '    proxy_port="" ' +
+        '    recover="' + recover + '" ' +
         '    java_arguments="-Djnlp.packEnabled=true" ' +
         '    codebase_lookup="false" ' +
         '    callback="' + eventSink + '" >' +
@@ -153,6 +216,17 @@ Jitsi.Applet = Jitsi.Base.extend({
 
     var body = document.body;
     var div = document.createElement('div');
+
+    try {
+      var appletTag = document.getElementById('jitsi-applet');
+      if (appletTag) {
+        document.body.removeChild(appletTag);
+      }
+    } catch(e) {
+      Jitsi.error("Errored while trying to reload the applet");
+      Jitsi.log("error:",e);
+    }
+
     div.id = 'jitsi-applet';
     div.innerHTML = '<span style="position:absolute; top:-200px; left:-200px;">' + embed_applet + '</span>';
     if (document.body.firstChild){

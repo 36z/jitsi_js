@@ -123,7 +123,7 @@ function loadApplet(codebase) {
   $('#unregister').bind('submit', function (e) {
     e.preventDefault();
     logMessage('SendEvent: unregister', true);
-    DemoApp.Jitsi.unregister(this.id);
+    DemoApp.Jitsi.unregister('register');
   });
 
   $('#create-call').bind('submit', function (e) {
@@ -364,7 +364,8 @@ DemoApp.Jitsi = Jitsi.Base.extend({
   },
 
   unregister: function(formID) {
-    this.userAgent.unregister();
+    var username = _getFormValue(formID, 'username');
+    this.userAgent.unregister(username);
   },
 
   createCall: function (formID) {

@@ -144,7 +144,7 @@ Jitsi.Service.Call = Jitsi.Base.extend(
   /**
    * DTMF tones
    */
-  sendTone: function(callId, key) {
+  sendTone: function(callId, key, start) {
     var params = [];
     if (callId){
       if(key){
@@ -154,6 +154,9 @@ Jitsi.Service.Call = Jitsi.Base.extend(
             params.push(callId);
           }
           params.push(key);
+          if (start){
+            params.push(start);
+          }
           return this.connection.sendEvent(this.api.SEND_TONE, params);
         }
       } else {
